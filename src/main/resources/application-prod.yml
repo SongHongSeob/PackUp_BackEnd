@@ -4,9 +4,6 @@ spring:
   application:
     name: PackUp-Backend
 
-  profiles:
-    active: local
-
   # TODO 추후에 url 변경 필 (배포 환경으로)
   security:
     user:
@@ -95,3 +92,14 @@ logging:
 
 server:
   port: 8080
+
+file:
+  upload:
+    path: /home/ec2-user/uploads/
+    max-size: 52428800
+    max-request-size: 104857600
+    allowed-extensions: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt
+
+slack:
+  client-id: ${SLACK_CLIENT_ID}
+  client-secret: ${SLACK_CLIENT_SECRET}

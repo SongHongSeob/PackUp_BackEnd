@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.swygbro.packup.notification.mapper.UserTemplateNoticeMapper">
+
+    <select id="selectNoticeTargetList" resultType="com.swygbro.packup.notification.vo.UserTemplateNoticeVo">
+        SELECT TEMPLATE_NO,
+               TEMPLATE_NM,
+               USER_NO,
+               USER_ID,
+               DEL_YN,
+               REPEAT_TYPE,
+               ALARM_DT,
+               ALARM_TIME
+          FROM TBL_USER_TEMPLATE
+         WHERE REPEAT_TYPE = 0
+           AND DEL_YN = 'N'
+           AND DATE_FORMAT(ALARM_DT, '%Y-%m-%d %H:%i') = #{alarmDtTime}
+    </select>
+
+</mapper>

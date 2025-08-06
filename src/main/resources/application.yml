@@ -75,3 +75,7 @@ logging:
 mybatis:
   config-location: classpath:mybatis-config.xml
   mapper-locations: classpath:mapper/**/*.xml
+
+slack:
+  client-id: slack_client_id
+  client-secret: slack_client_secret

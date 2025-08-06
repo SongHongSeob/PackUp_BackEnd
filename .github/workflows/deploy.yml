@@ -50,5 +50,9 @@ jobs:
             docker run -d \
               --name packup \
               -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e SLACK_CLIENT_ID='${{ secrets.SLACK_CLIENT_ID }}' \
+              -e SLACK_CLIENT_SECRET='${{ secrets.SLACK_CLIENT_SECRET }}' \
+              -e JWT_SECRET_KEY='${{ secrets.JWT_SECRET_KEY }}' \
               packup-api
           EOF
