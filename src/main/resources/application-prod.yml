@@ -101,6 +101,20 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 0219songhongseob@gmail.com
+    password: wwrugfhcaenqtptn
+    properties:
+      mail:
+       smtp:
+        auth: true
+        starttls:
+         enable: true
+         required: true
+      debug: true
+
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   config-location: classpath:mybatis-config.xml
@@ -117,6 +131,8 @@ server:
 
 # 파일 업로드 설정
 file:
+  upload:
+    path: /home/ec2-user/uploads/
   upload:
     path: ${FILE_UPLOAD_PATH:/home/ec2-user/uploads/}
     max-size: 52428800
