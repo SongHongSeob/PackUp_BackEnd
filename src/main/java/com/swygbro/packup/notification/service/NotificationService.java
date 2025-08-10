@@ -57,7 +57,7 @@ public class NotificationService {
                 log.info("Notification save success : userId={}, templateNo={}", notification.getUserId(), notification.getTemplateNo());
 
                 // SSE 알림 전송
-                sseEmitterService.send(notification.getUserId(), notification.getMessage());
+                sseEmitterService.send(notification);
 
                 sendSlackNotification(notification.getUserId(), notification.getTemplateNm() + "의 알림시각입니다.");
             }
