@@ -26,14 +26,13 @@ public class SecurityConfig {
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final OAuth2SuccessHandler OAuth2SuccessHandler;
-    private final @Lazy CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JwtUtill jwtUtill;
 
-
     public SecurityConfig(CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
                           OAuth2SuccessHandler OAuth2SuccessHandler,
-                          @Lazy CustomOAuth2UserService customOAuth2UserService,
+                          CustomOAuth2UserService customOAuth2UserService,
                           CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
                           JwtUtill jwtUtill) {
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
@@ -62,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/temp/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()  // 통합 인증 API 포함
                         .requestMatchers("/notifications/**").permitAll()
                         .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/").permitAll()  // 루트 경로 허용
@@ -119,7 +118,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:5173", "https://packup.swygbro.com")); // 리액트 도메인
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:3000", 
+            "http://localhost:5173", 
+            "https://packup.swygbro.com",
+            "https://packupapi.xyz"  // 백엔드 도메인 추가
+        )); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true); // 쿠키 허용

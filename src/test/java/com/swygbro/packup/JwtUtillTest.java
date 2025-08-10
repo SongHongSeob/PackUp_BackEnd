@@ -1,22 +1,23 @@
 package com.swygbro.packup;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import com.swygbro.packup.security.jwt.JwtUtill;
-import org.aspectj.weaver.patterns.IToken;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.UUID;
-
-
-@SpringBootTest(properties = "JWT_SECRET_KEY=thisIsASecretKeyWithAtLeast32ByteLength123!!")
+/**
+ * JwtUtill 단위 테스트 - Spring Context 없이 실행
+ */
 public class JwtUtillTest {
-
-    @Autowired
+    
     private JwtUtill jwtUtill;
+    
+    @BeforeEach
+    void setUp() {
+        // 테스트용 JWT 유틸 생성 (의존성 없이)
+        String testSecret = "thisIsASecretKeyWithAtLeast32ByteLength123!!";
+        jwtUtill = new JwtUtill(testSecret);
+    }
 
     @Test
     void createAndValidateToken() {

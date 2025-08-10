@@ -28,8 +28,9 @@ public class SnsUser {
     @Column(name = "USER_NO", nullable = false)
     private int userNo;
 
+    // USER_NO를 기준으로 조인 (Primary Key 기준)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "USER_NO", referencedColumnName = "USER_NO", insertable = false, updatable = false)
     private User user;
 
     @Column(name = "LOGIN_TYPE", nullable = false)
@@ -51,7 +52,7 @@ public class SnsUser {
                 .userNo(userNo)
                 .loginType(joinDto.getLOGIN_TYPE())
                 .socialId(joinDto.getSOCIAL_ID())
-                .regId("")
+                .regId("system")
                 .regDt(LocalDateTime.now())
                 .build();
     }

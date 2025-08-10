@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -160,8 +162,48 @@ public class JwtUtill {
     }
 
     /**
-     * 자동로그인을 위한 토큰 검증 및 사용자 인증
+     * HTTP 요청에서 JWT 토큰 추출 (쿠키 또는 Authorization 헤더에서)
+     * @param request HTTP 요청
+     * @return JWT 토큰 (토큰이 없으면 null)
+     */
+    public String extractTokenFromRequest(HttpServletRequest request) {
+        // 1. Authorization 헤더에서 Bearer 토큰 찾기
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        
+        // 2. 쿠키에서 토큰 찾기
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Authorization".equals(cookie.getName()) || "jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * JWT 토큰에서 사용자 ID 추출 (getUserId와 동일)
      * @param token JWT 토큰
+     * @return 사용자 ID
+     */
+    public String getUserIdFromToken(String token) {
+        return getUserId(token);
+    }
+
+    /**
+     * JWT 토큰에서 사용자명 추출 (getUsername과 동일)
+     * @param token JWT 토큰
+     * @return 사용자명
+     */
+    public String getUsernameFromToken(String token) {
+        return getUsername(token);
+    }
+     /* @param token JWT 토큰
      * @return 자동로그인 결과
      */
     public AutoLoginResult checkAutoLogin(String token) {

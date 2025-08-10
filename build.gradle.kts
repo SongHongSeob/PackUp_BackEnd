@@ -50,6 +50,8 @@ dependencies {
 	implementation("commons-io:commons-io:2.17.0")
 	// https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload 파일업로드
 	implementation("commons-fileupload:commons-fileupload:1.5")
+	// Apache Commons Lang3
+	implementation("org.apache.commons:commons-lang3:3.12.0")
 	// jwt 설정
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 	implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
@@ -62,10 +64,13 @@ dependencies {
 	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	systemProperty("spring.profiles.active", "test")
+	environment("SPRING_PROFILES_ACTIVE", "test")
 }
 
 tasks.test {

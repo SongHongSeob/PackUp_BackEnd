@@ -13,9 +13,9 @@
                ALARM_DT,
                ALARM_TIME
           FROM TBL_USER_TEMPLATE
-         WHERE REPEAT_TYPE = 0
-           AND DEL_YN = 'N'
+         WHERE  DEL_YN = 'N'
            AND DATE_FORMAT(ALARM_DT, '%Y-%m-%d %H:%i') = #{alarmDtTime}
+           <!-- AND REPEAT_TYPE = 'FALSE' -->
     </select>
 
 </mapper>

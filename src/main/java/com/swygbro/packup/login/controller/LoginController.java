@@ -125,14 +125,14 @@ public class LoginController {
 
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("success", true);
-            responseBody.put("message", "로그아웃 성공");
+            responseBody.put("message", "일반 사용자 로그아웃 성공");
             
             return ResponseEntity.ok(responseBody);
         } catch (Exception e) {
-            log.error("Logout error: ", e);
+            log.error("일반 사용자 로그아웃 오류: ", e);
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("success", false);
-            responseBody.put("message", "로그아웃 실패");
+            responseBody.put("message", "일반 사용자 로그아웃 실패");
             
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
         }
