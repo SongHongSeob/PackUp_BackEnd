@@ -143,8 +143,6 @@ public class TemplateController {
             // 서비스 호출
             tempVo = templateService.getDetailData(tempVo.getTemplateNo());
             
-            System.out.println("tempVo : " + tempVo);
-            
             // 조회 결과 검증
             if (tempVo == null) {
                 response.put("templateData", null);
@@ -202,8 +200,6 @@ public class TemplateController {
                                                                 Authentication authentication){
         
         tempVo.setUpdId(authentication.getName());
-        System.out.println("tempVo.getIsFavorite()@#@#@#@#@#@@#@ : "+tempVo.getIsFavorite());
-        System.out.println("tempVo.getTemplateNo() : "+tempVo.getTemplateNo());
         Map<String, Object> teplateUpdateMap = templateService.templateStatusUpdate(tempVo);
                                                                     
         Map<String, Object> response = new HashMap<>();
