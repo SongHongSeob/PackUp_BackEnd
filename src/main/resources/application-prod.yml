@@ -75,20 +75,6 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
 
-  # 메일 설정
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-
   # JWT 설정
   jwt:
     secret: "${JWT_SECRET_KEY}"
@@ -133,8 +119,6 @@ server:
 file:
   upload:
     path: /home/ec2-user/uploads/
-  upload:
-    path: ${FILE_UPLOAD_PATH:/home/ec2-user/uploads/}
     max-size: 52428800
     max-request-size: 104857600
     allowed-extensions: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt
