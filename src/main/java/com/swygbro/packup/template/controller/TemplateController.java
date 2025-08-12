@@ -142,7 +142,7 @@ public class TemplateController {
             
             // 서비스 호출
             tempVo = templateService.getDetailData(tempVo.getTemplateNo());
-            
+
             // 조회 결과 검증
             if (tempVo == null) {
                 response.put("templateData", null);
