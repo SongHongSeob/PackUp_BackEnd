@@ -11,11 +11,19 @@
                DEL_YN,
                REPEAT_TYPE,
                ALARM_DT,
-               ALARM_TIME
+               ALARM_TIME,
+               ALARM_TEXT,
+               SLACK_YN
           FROM TBL_USER_TEMPLATE
          WHERE  DEL_YN = 'N'
-           AND DATE_FORMAT(ALARM_DT, '%Y-%m-%d %H:%i') = #{alarmDtTime}
-           <!-- AND REPEAT_TYPE = 'FALSE' -->
+           AND (
+                  (REPEAT_TYPE = 'FALSE'
+                   AND DATE_FORMAT(ALARM_DT, '%Y-%m-%d %H:%i') = #{alarmDt})
+                OR
+                  (REPEAT_TYPE = 'TRUE'
+                   AND FIND_IN_SET(UPPER(DATE_FORMAT(NOW(), '%a')), ALARM_REPEAT_DAY) > 0
+                   AND DATE_FORMAT(ALARM_TIME, '%H:%i') = #{alarmTime})
+                )
     </select>
 
 </mapper>
