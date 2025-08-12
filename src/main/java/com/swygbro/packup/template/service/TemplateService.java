@@ -328,28 +328,10 @@ public class TemplateService {
       }
 
       int tempTextDeleteCnt = templateMapper.deleteTempalteStepTextInt(templateNo);
-      if(tempTextDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 스탭 텍스트 삭제시 오류 발생");
-        return responseMap;
-      }
 
       int tempStepDeleteCnt = templateMapper.deleteStepTemplate(templateNo);
-      if(tempStepDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 스탭 삭제시 오류 발생");
-        return responseMap;
-      }
 
       int tempDeleteCnt = templateMapper.deleteTemplate(templateNo);
-      if(tempDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 삭제시 오류 발생");
-        return responseMap;
-      }
 
       responseMap.put("status", saveStatus);
           responseMap.put("resposeText", "템플릿 정상 삭제");
