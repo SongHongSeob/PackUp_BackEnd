@@ -67,19 +67,23 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String role = authorities.iterator().next().getAuthority();
 
-        // 신규 사용자면 가입/연동 먼저 보장 (idempotent)
+        // 신규 사용자면 가입/연동 먼저 보장하고 SnsUser 직접 받기
+        SnsUser link;
         if (user.isNewUser()) {
-            joinService.ensureSnsUserLinked(
+            System.out.println("신규 사용자 - joinService.ensureSnsUserLinked 호출");
+            link = joinService.ensureSnsUserLinked(
                     loginType.name(),
                     socialId,
                     user.getEmail(),
-                    username // null 가능; 서비스에서 닉네임/임시비번 생성
+                    username
             );
+            System.out.println("joinService.ensureSnsUserLinked 완료");
+        } else {
+            System.out.println("기존 사용자 - snsSignUpRepo 조회");
+            // 기존 사용자는 기존 로직대로 조회
+            link = snsSignUpRepo.findBySocialIdAndLoginType(socialId, loginType.name())
+                    .orElseThrow(() -> new IllegalStateException("SNS 연동 정보를 찾을 수 없습니다."));
         }
-
-        // SNS 링크 기준으로 최종 User 재조회 (신규 생성되었을 수 있음)
-        SnsUser link = snsSignUpRepo.findBySocialIdAndLoginType(socialId, loginType.name())
-                .orElseThrow(() -> new IllegalStateException("SNS 연동 정보를 찾을 수 없습니다."));
         User userEntity = userRepository.findByUserNo(link.getUserNo())
                 .orElseThrow(() -> new IllegalStateException("사용자 정보를 찾을 수 없습니다."));
 

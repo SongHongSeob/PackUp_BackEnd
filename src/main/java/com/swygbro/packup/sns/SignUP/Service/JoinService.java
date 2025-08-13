@@ -37,10 +37,11 @@ public class JoinService {
 
     // OAuth2SuccessHandler에서 호출: 소셜 연동을 idempotent 하게 보장
     @Transactional
-    public void ensureSnsUserLinked(String provider, String socialId, String email, String candidateName) {
-        // 0) 이미 해당 socialId+provider 링크가 있으면 종료
-        if (snsSignUpRepo.findBySocialIdAndLoginType(socialId, provider).isPresent()) {
-            return;
+    public SnsUser ensureSnsUserLinked(String provider, String socialId, String email, String candidateName) {
+        // 0) 이미 해당 socialId+provider 링크가 있으면 반환
+        var existingLink = snsSignUpRepo.findBySocialIdAndLoginType(socialId, provider);
+        if (existingLink.isPresent()) {
+            return existingLink.get();
         }
 
         // 1) email 기준 기존 사용자 찾기 (있으면 그 사용자에 링크)
@@ -85,8 +86,9 @@ public class JoinService {
         }
 
         // 3) SNS 링크 저장 (idempotent 체크)
+        SnsUser snsUser = null;
         if (!snsSignUpRepo.existsByUserNoAndLoginType(user.getUserNo(), provider)) {
-            SnsUser snsUser = SnsUser.builder()
+            snsUser = SnsUser.builder()
                     .userNo(user.getUserNo())
                     .userId(user.getUserId())
                     .loginType(provider) // "KAKAO" / "NAVER" / "GOOGLE"
@@ -94,8 +96,14 @@ public class JoinService {
                     .regId("system")
                     .regDt(LocalDateTime.now())
                     .build();
-            snsSignUpRepo.save(snsUser);
+            snsUser = snsSignUpRepo.save(snsUser);
+        } else {
+            // 이미 존재하는 경우 조회해서 반환
+            snsUser = snsSignUpRepo.findByUserNoAndLoginType(user.getUserNo(), provider)
+                    .orElseThrow(() -> new IllegalStateException("SNS 연동 정보 조회 실패"));
         }
+        
+        return snsUser;
     }
 
     // "kakao_12345" -> "12345" 같이 suffix만 추출
