@@ -117,29 +117,27 @@
 		INSERT INTO TBL_USER_TEMPLATE_STEP_OBJ (
 			TEMP_USER_OBJ_NO,
 			TEMPLATE_STEP_NO,
-			CATE_NO,
-			OBJ_NO,
 			OBJ_NM,
 			REG_DT,
 			REG_ID,
 			UPD_DT,
 			UPD_ID,
 			DEL_YN,
-			LOC_NUM,
+			OBJ_X,
+			OBJ_Y,
 			STEP,
 			TEMPLATE_NO
 		) VALUES (
 			#{tempUserObjNo},
 			#{templateStepNo},
-			#{cateNo},
-			#{objNo},
 			#{objNm},
 			NOW(),
 			#{regId},
 			NOW(),
 			#{updId},
 			#{delYn},
-			#{locNum},
+			#{objX},
+			#{objY},
 			#{step},
 			#{templateNo}
 		)
