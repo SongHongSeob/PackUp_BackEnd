@@ -6,7 +6,6 @@
     <select id="selectNoticeTargetList" resultType="com.swygbro.packup.notification.vo.UserTemplateNoticeVo">
         SELECT TEMPLATE_NO,
                TEMPLATE_NM,
-               USER_NO,
                USER_ID,
                DEL_YN,
                REPEAT_TYPE,
@@ -17,10 +16,10 @@
           FROM TBL_USER_TEMPLATE
          WHERE  DEL_YN = 'N'
            AND (
-                  (REPEAT_TYPE = 'FALSE'
+                  (REPEAT_TYPE = '0'
                    AND DATE_FORMAT(ALARM_DT, '%Y-%m-%d %H:%i') = #{alarmDt})
                 OR
-                  (REPEAT_TYPE = 'TRUE'
+                  (REPEAT_TYPE = '1'
                    AND FIND_IN_SET(UPPER(DATE_FORMAT(NOW(), '%a')), ALARM_REPEAT_DAY) > 0
                    AND DATE_FORMAT(ALARM_TIME, '%H:%i') = #{alarmTime})
                 )

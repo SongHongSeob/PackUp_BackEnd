@@ -37,7 +37,6 @@
 		INSERT INTO TBL_USER_TEMPLATE (
 			TEMPLATE_NO,
 			TEMPLATE_NM,
-			USER_NO,
 			USER_ID,
 			REG_DT,
 			REG_ID,
@@ -47,11 +46,11 @@
 			REPEAT_TYPE,
 			ALARM_REPEAT_DAY,
 			ALARM_TIME,
-			CATE_NO
+			CATE_NO,
+			STEP
 		) VALUES (
 			#{templateNo},
 			#{templateNm},
-			#{userNo},
 			#{userId},
 			NOW(),
 			#{userId},
@@ -61,7 +60,8 @@
 			#{repeatType},
 			#{alarmRepeatDay},
 			#{alarmTime},
-			#{cateNo}
+			#{cateNo},
+			#{step}
 		)
 	</insert>
 
@@ -126,7 +126,8 @@
 			OBJ_X,
 			OBJ_Y,
 			STEP,
-			TEMPLATE_NO
+			TEMPLATE_NO,
+			CATE_NO
 		) VALUES (
 			#{tempUserObjNo},
 			#{templateStepNo},
@@ -139,7 +140,8 @@
 			#{objX},
 			#{objY},
 			#{step},
-			#{templateNo}
+			#{templateNo},
+			#{cateNo}
 		)
 	</insert>
 
@@ -190,7 +192,6 @@
 		 *
 		 */
 		SELECT A.TEMPLATE_NO,
-			   A.USER_NO,
 			   A.USER_ID,
 			   A.REG_DT,
 			   A.REG_ID,
@@ -202,9 +203,19 @@
 			   A.ALARM_REPEAT_DAY,
 			   A.ALARM_TIME,
 			   A.CATE_NO,
-			   B.ORG_FILE_NAME
+			   A.STEP,
+			   A.ALARM_DT,
+			   A.REPEAT_TYPE,
+			   A.ALARM_REPEAT_DAY,
+			   A.ALARM_TIME,
+			   A.ALARM_TEXT,
+			   A.SLACK_YN,
+			   A.GOOGLE_CALENDAR_YN,
+			   TAF.SAVE_FILE_NAME
 		FROM TBL_USER_TEMPLATE A
-				 LEFT JOIN TBL_ATTCH_FILE B ON A.TEMPLATE_NO = B.REF_NO
+				 LEFT JOIN TBL_ATTCH_FILE TAF ON TAF.REF_NO = A.TEMPLATE_NO
+					AND TAF.FILE_CATE1 = 'template'
+					AND TAF.FILE_CATE2 = 'thumnail'
 		WHERE 1=1
 		  AND A.DEL_YN = 'N'
 		  AND A.TEMPLATE_NO = #{templateNo}
@@ -240,22 +251,19 @@
 		SELECT A.TEMP_USER_OBJ_NO,
 			   A.TEMPLATE_STEP_NO,
 			   A.CATE_NO,
-			   A.OBJ_NO,
 			   A.OBJ_NM,
 			   A.REG_ID,
 			   A.REG_DT,
 			   A.UPD_ID,
 			   A.UPD_DT,
 			   A.OBJ_CNT,
-			   A.LOC_NUM,
 			   A.STEP,
 			   A.TEMPLATE_NO,
-			   B.ORG_FILE_NAME
+			   A.OBJ_X,
+			   A.OBJ_Y
 		FROM TBL_USER_TEMPLATE_STEP_OBJ A
-				 LEFT JOIN TBL_ATTCH_FILE B ON A.TEMPLATE_NO = B.REF_NO
 		WHERE 1=1
 		  AND A.USE_YN = 'Y'
-		  AND STEP = #{step}
 		  AND TEMPLATE_NO = #{templateNo}
 	</select>
 
@@ -279,7 +287,6 @@
 		FROM TBL_USER_TEMPLATE_STEP_TEXT A
 		WHERE 1=1
 		  AND TEMPLATE_NO = #{templateNo}
-		  AND STEP = #{step}
 	</select>
 
 
@@ -291,7 +298,6 @@
 		 *
 		 */
 		SELECT A.TEMPLATE_NO,
-			   A.USER_NO,
 			   A.USER_ID,
 			   A.REG_DT,
 			   A.REG_ID,
@@ -300,6 +306,7 @@
 			   A.TEMPLATE_NM,
 			   A.IS_FAVORITE,
 			   A.CATE_NO,
+			   TAF.SAVE_FILE_NAME,
 			   CASE 
 			   	WHEN T.CATE_NM = 'office' then '업무'
 			   	WHEN T.CATE_NM = 'daily' then '생활'
@@ -307,10 +314,12 @@
 			   	ELSE ''
 			   END AS CATE_NM
 		FROM TBL_USER_TEMPLATE A
-			 , TBL_CATE T
+			INNER JOIN TBL_CATE T ON T.CATE_NO = A.CATE_NO
+			LEFT JOIN TBL_ATTCH_FILE TAF ON TAF.REF_NO = A.TEMPLATE_NO
+			AND TAF.FILE_CATE1 = 'template'
+			AND TAF.FILE_CATE2 = 'thumnail'
 		WHERE 1=1
-		  AND A.DEL_YN = 'N'
-		  AND T.CATE_NO = A.CATE_NO
+		AND A.DEL_YN = 'N'
 		  AND A.USER_ID = #{userId}
 		  <if test='cateNo == ""'>
 			AND IS_FAVORITE = 'Y'
@@ -341,14 +350,19 @@
 		 *
 		 */
 		SELECT A.TEMPLATE_NO,
-			   A.USER_NO,
 			   A.USER_ID,
 			   A.REG_DT,
 			   A.REG_ID,
 			   A.UPD_DT,
 			   A.UPD_ID,
 			   A.TEMPLATE_NM,
-			   B.ORG_FILE_NAME
+			   B.ORG_FILE_NAME,
+			   A.ALARM_DT,
+			   A.ALARM_TIME,
+			   A.REPEAT_TYPE,
+			   A.ALARM_TEXT,
+			   A.SLACK_YN,
+			   A.GOOGLE_CALENDAR_YN
 		FROM TBL_USER_TEMPLATE A
 				 LEFT JOIN TBL_ATTCH_FILE B ON A.TEMPLATE_NO = B.REF_NO
 		WHERE 1=1
@@ -359,25 +373,27 @@
 	<update id="templateUpdate" parameterType="com.swygbro.packup.template.vo.TemplateVo">
 		UPDATE TBL_USER_TEMPLATE
 		SET
-			<if test='alarmDt != null and alarmDt != ""'>
-			ALARM_DT = #{alarmDt},
-			</if>
+			ALARM_DT = STR_TO_DATE(#{alarmDt}, '%Y-%m-%d %H:%i:%s'),
+			ALARM_TIME = #{alarmTime},
 			<if test='repeatType != null and repeatType != ""'>
 			REPEAT_TYPE = #{repeatType},
 			</if>
 			<if test='templateNm != null and templateNm != ""'>
 			TEMPLATE_NM = #{templateNm},
 			</if>
-			<if test='alarmRepeatDay != null and alarmRepeatDay != ""'>
 			ALARM_REPEAT_DAY = #{alarmRepeatDay},
+			<if test='googleCalendarYn != null and googleCalendarYn != ""'>
+			GOOGLE_CALENDAR_YN = #{googleCalendarYn},
+			</if>
+			<if test='slackYn != null and slackYn != ""'>
+			SLACK_YN = #{slackYn},
 			</if>
 			<if test='cateNo != null and cateNo != ""'>
 			CATE_NO = #{cateNo},
 			</if>
-			<if test='templateNm != null and templateNm != ""'>
-			TEMPLATE_NM = #{templateNm},
+			<if test='alarmText != null and alarmText != ""'>
+			ALARM_TEXT = #{alarmText},
 			</if>
-			DEL_YN = #{delYn},
 			UPD_ID = #{userId},
 			UPD_DT = NOW()
 		WHERE TEMPLATE_NO = #{templateNo}
