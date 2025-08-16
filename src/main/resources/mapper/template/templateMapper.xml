@@ -373,20 +373,8 @@
 	<update id="templateUpdate" parameterType="com.swygbro.packup.template.vo.TemplateVo">
 		UPDATE TBL_USER_TEMPLATE
 		SET
-			ALARM_DT = STR_TO_DATE(#{alarmDt}, '%Y-%m-%d %H:%i:%s'),
-			ALARM_TIME = #{alarmTime},
-			<if test='repeatType != null and repeatType != ""'>
-			REPEAT_TYPE = #{repeatType},
-			</if>
 			<if test='templateNm != null and templateNm != ""'>
 			TEMPLATE_NM = #{templateNm},
-			</if>
-			ALARM_REPEAT_DAY = #{alarmRepeatDay},
-			<if test='googleCalendarYn != null and googleCalendarYn != ""'>
-			GOOGLE_CALENDAR_YN = #{googleCalendarYn},
-			</if>
-			<if test='slackYn != null and slackYn != ""'>
-			SLACK_YN = #{slackYn},
 			</if>
 			<if test='cateNo != null and cateNo != ""'>
 			CATE_NO = #{cateNo},
@@ -546,6 +534,29 @@
 			</if>
 			<if test='templateNm != null and templateNm != ""'>
 			TEMPLATE_NM = #{templateNm},
+			</if>
+			UPD_ID = #{userId},
+			UPD_DT = NOW()
+		WHERE TEMPLATE_NO = #{templateNo}
+	</update>
+
+	<update id="templateAlarmSave" parameterType="com.swygbro.packup.template.vo.TemplateVo">
+		UPDATE TBL_USER_TEMPLATE
+		SET
+			ALARM_DT = STR_TO_DATE(#{alarmDt}, '%Y-%m-%d %H:%i:%s'),
+			ALARM_TIME = #{alarmTime},
+			<if test='repeatType != null and repeatType != ""'>
+			REPEAT_TYPE = #{repeatType},
+			</if>
+			ALARM_REPEAT_DAY = #{alarmRepeatDay},
+			<if test='googleCalendarYn != null and googleCalendarYn != ""'>
+			GOOGLE_CALENDAR_YN = #{googleCalendarYn},
+			</if>
+			<if test='slackYn != null and slackYn != ""'>
+			SLACK_YN = #{slackYn},
+			</if>
+			<if test='alarmText != null and alarmText != ""'>
+			ALARM_TEXT = #{alarmText},
 			</if>
 			UPD_ID = #{userId},
 			UPD_DT = NOW()

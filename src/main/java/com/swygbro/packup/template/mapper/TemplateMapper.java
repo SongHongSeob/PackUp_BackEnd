@@ -64,4 +64,6 @@ public interface TemplateMapper {
 
     int templateStatusUpdate(TemplateVo tempVo);
 
+    int templateAlarmSave(TemplateVo tempVo);
+
 }

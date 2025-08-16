@@ -351,7 +351,7 @@ public class TemplateService {
         Map<String,Object> responseMap = new HashMap<>();
         Boolean saveStatus = true;
 
-        int templateAlarmSave = templateMapper.templateUpdate(tempVo);
+        int templateAlarmSave = templateMapper.templateAlarmSave(tempVo);
 
         if(templateAlarmSave < 1){
             saveStatus = false;
