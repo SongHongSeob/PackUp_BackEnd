@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swygbro.packup.template.mapper.TemplateMapper">
+	<select id="getCateTemplateObject" parameterType="com.swygbro.packup.template.vo.CateObjVo" resultType="com.swygbro.packup.template.vo.CateObjVo">
+		/**
+		* com.swygbro.packup.template.mapper.TemplateMapper > getCateTemplateObject
+		* 작성자 : 홍섭
+		* 설명 : 카테고리에 연결된 오브젝트 검색
+		*
+		*/
+		SELECT A.OBJ_NO,
+		A.CATE_NO,
+		A.OBJ_NM,
+		A.OBJ_ENM,
+		B.ORG_FILE_NAME
+		FROM TBL_OBJECT A
+		LEFT JOIN TBL_ATTCH_FILE B ON A.OBJ_NO = B.REF_NO
+		WHERE 1=1
+		AND A.DEL_YN = 'N'
+		<if test='cateNo != null and cateNo != ""'>
+			AND CATE_NO = #{cateNo}
+		</if>
+	</select>
+
+	<insert id="templateSave" parameterType="com.swygbro.packup.template.vo.TemplateVo">
+		/**
+		* com.swygbro.packup.template.mapper.TemplateMapper > TBL_USER_TEMPLATE
+		* 작성자 : 홍섭
+		* 설명 : 사용자 템플릿 저장
+		*
+		*/
+
+		<selectKey keyProperty="templateNo" resultType="Integer" order="BEFORE">
+			SELECT IFNULL(MAX(TEMPLATE_NO), 0) + 1 FROM TBL_USER_TEMPLATE
+		</selectKey>
+
+		INSERT INTO TBL_USER_TEMPLATE (
+			TEMPLATE_NO,
+			TEMPLATE_NM,
+			USER_ID,
+			REG_DT,
+			REG_ID,
+			UPD_DT,
+			UPD_ID,
+			ALARM_DT,
+			REPEAT_TYPE,
+			ALARM_REPEAT_DAY,
+			ALARM_TIME,
+			CATE_NO,
+			STEP
+		) VALUES (
+			#{templateNo},
+			#{templateNm},
+			#{userId},
+			NOW(),
+			#{userId},
+			NOW(),
+			#{userId},
+			#{alarmDt},
+			#{repeatType},
+			#{alarmRepeatDay},
+			#{alarmTime},
+			#{cateNo},
+			#{step}
+		)
+	</insert>
+
+	<insert id="templateSaveStep" parameterType="com.swygbro.packup.template.vo.TempStepVo">
+		/**
+		* com.swygbro.packup.template.mapper.TemplateMapper > TBL_USER_TEMPLATE_STEP
+		* 작성자 : 홍섭
+		* 설명 : 사용자 템플릿 스텝 정보 저장
+		*
+		*/
+
+		<selectKey keyProperty="templateStepNo" resultType="Integer" order="BEFORE">
+			SELECT IFNULL(MAX(TEMPLATE_STEP_NO), 0) + 1 FROM TBL_USER_TEMPLATE_STEP
+		</selectKey>
+
+		INSERT INTO TBL_USER_TEMPLATE_STEP (
+			TEMPLATE_STEP_NO,
+			TEMPLATE_NO,
+			STEP,
+			REG_DT,
+			REG_ID,
+			UPD_DT,
+			UPD_ID,
+			STEP_X,
+			STEP_Y,
+			DEL_YN
+		) VALUES (
+			#{templateStepNo},
+			#{templateNo},
+			#{step},
+			NOW(),
+			#{regId},
+			NOW(),
+			#{updId},
+			#{stepX},
+			#{stepY},
+			#{delYn}
+		)
+	</insert>
+
+	<insert id="templateSaveStepObj" parameterType="com.swygbro.packup.template.vo.TempStepObjVo">
+		/**
+		* com.swygbro.packup.template.mapper.TemplateMapper > TBL_USER_TEMPLATE_STEP_OBJ
+		* 작성자 : 홍섭
+		* 설명 : 사용자 템플릿 스텝 오브젝트 저장
+		*
+		*/
+
+		<selectKey keyProperty="tempUserObjNo" resultType="Integer" order="BEFORE">
+			SELECT IFNULL(MAX(TEMP_USER_OBJ_NO), 0) + 1 FROM TBL_USER_TEMPLATE_STEP_OBJ
+		</selectKey>
+
+		INSERT INTO TBL_USER_TEMPLATE_STEP_OBJ (
+			TEMP_USER_OBJ_NO,
+			TEMPLATE_STEP_NO,
+			OBJ_NM,
+			REG_DT,
+			REG_ID,
+			UPD_DT,
+			UPD_ID,
+			DEL_YN,
+			OBJ_X,
+			OBJ_Y,
+			STEP,
+			TEMPLATE_NO,
+			CATE_NO
+		) VALUES (
+			#{tempUserObjNo},
+			#{templateStepNo},
+			#{objNm},
+			NOW(),
+			#{regId},
+			NOW(),
+			#{updId},
+			#{delYn},
+			#{objX},
+			#{objY},
+			#{step},
+			#{templateNo},
+			#{cateNo}
+		)
+	</insert>
+
+	<insert id="templateSaveStepText" parameterType="com.swygbro.packup.template.vo.TempStepTextVo">
+		/**
+		* com.swygbro.packup.template.mapper.TemplateMapper > TBL_USER_TEMPLATE_STEP_TEXT
+		* 작성자 : 홍섭
+		* 설명 : 사용자 템플릿 스텝 텍스트 저장
+		*
+		*/
+
+		<selectKey keyProperty="textNo" resultType="Integer" order="BEFORE">
+			SELECT IFNULL(MAX(TEXT_NO), 0) + 1 FROM TBL_USER_TEMPLATE_STEP_TEXT
+		</selectKey>
+
+		INSERT INTO TBL_USER_TEMPLATE_STEP_TEXT (
+			TEXT_NO,
+			TEMPLATE_STEP_NO,
+			TEXT,
+			STEP_TEXT_X,
+			STEP_TEXT_Y,
+			TEMPLATE_NO,
+			REG_DT,
+			REG_ID,
+			UPD_DT,
+			UPD_ID,
+			STEP
+		) VALUES (
+			#{textNo},
+			#{templateStepNo},
+			#{text},
+			#{stepTextX},
+			#{stepTextY},
+			#{templateNo},
+			NOW(),
+			#{regId},
+			NOW(),
+			#{updId},
+			#{step}
+		)
+	</insert>
+
+	<select id="getTemplate" parameterType="com.swygbro.packup.template.vo.TemplateVo" resultType="com.swygbro.packup.template.vo.TemplateVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTemplate
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 상세 검색
+		 *
+		 */
+		SELECT A.TEMPLATE_NO,
+			   A.USER_ID,
+			   A.REG_DT,
+			   A.REG_ID,
+			   A.UPD_DT,
+			   A.UPD_ID,
+			   A.TEMPLATE_NM,
+			   A.ALARM_DT,
+			   A.REPEAT_TYPE,
+			   A.ALARM_REPEAT_DAY,
+			   A.ALARM_TIME,
+			   A.CATE_NO,
+			   A.STEP,
+			   A.ALARM_DT,
+			   A.REPEAT_TYPE,
+			   A.ALARM_REPEAT_DAY,
+			   A.ALARM_TIME,
+			   A.ALARM_TEXT,
+			   A.SLACK_YN,
+			   A.GOOGLE_CALENDAR_YN,
+			   TAF.SAVE_FILE_NAME
+		FROM TBL_USER_TEMPLATE A
+				 LEFT JOIN TBL_ATTCH_FILE TAF ON TAF.REF_NO = A.TEMPLATE_NO
+					AND TAF.FILE_CATE1 = 'template'
+					AND TAF.FILE_CATE2 = 'thumnail'
+		WHERE 1=1
+		  AND A.DEL_YN = 'N'
+		  AND A.TEMPLATE_NO = #{templateNo}
+	</select>
+
+	<select id="getStepsByTemplateNo" parameterType="com.swygbro.packup.template.vo.TempStepVo" resultType="com.swygbro.packup.template.vo.TempStepVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getStepsByTemplateNo
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 스텝 검색
+		 *
+		 */
+		SELECT TEMPLATE_STEP_NO,
+			   STEP,
+			   REG_ID,
+			   REG_DT,
+			   UPD_ID,
+			   UPD_DT,
+			   STEP_X,
+			   STEP_Y
+		FROM TBL_USER_TEMPLATE_STEP A
+		WHERE 1=1
+		  AND A.TEMPLATE_NO = #{templateNo}
+	</select>
+
+	<select id="getStepObjByStepNo" parameterType="com.swygbro.packup.template.vo.TempStepObjVo" resultType="com.swygbro.packup.template.vo.TempStepObjVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getStepObjByStepNo
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 스텝에 연결된 오브젝트 검색
+		 *
+		 */
+		SELECT A.TEMP_USER_OBJ_NO,
+			   A.TEMPLATE_STEP_NO,
+			   A.CATE_NO,
+			   A.OBJ_NM,
+			   A.REG_ID,
+			   A.REG_DT,
+			   A.UPD_ID,
+			   A.UPD_DT,
+			   A.OBJ_CNT,
+			   A.STEP,
+			   A.TEMPLATE_NO,
+			   A.OBJ_X,
+			   A.OBJ_Y
+		FROM TBL_USER_TEMPLATE_STEP_OBJ A
+		WHERE 1=1
+		  AND A.USE_YN = 'Y'
+		  AND TEMPLATE_NO = #{templateNo}
+	</select>
+
+	<select id="getStepTextByStepNo" parameterType="com.swygbro.packup.template.vo.TempStepTextVo" resultType="com.swygbro.packup.template.vo.TempStepTextVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getStepTextByStepNo
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 스텝에 연결된 텍스트 검색
+		 *
+		 */
+		SELECT TEXT_NO,
+			   TEMPLATE_STEP_NO,
+			   TEXT,
+			   STEP_TEXT_X,
+			   STEP_TEXT_Y,
+			   REG_ID,
+			   REG_DT,
+			   UPD_ID,
+			   UPD_DT,
+			   TEMPLATE_NO
+		FROM TBL_USER_TEMPLATE_STEP_TEXT A
+		WHERE 1=1
+		  AND TEMPLATE_NO = #{templateNo}
+	</select>
+
+
+	<select id="getTemplatesByUserId" parameterType="com.swygbro.packup.template.vo.TemplateVo" resultType="com.swygbro.packup.template.vo.TemplateVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTemplatesByUserId
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 아이디 검색
+		 *
+		 */
+		SELECT A.TEMPLATE_NO,
+			   A.USER_ID,
+			   A.REG_DT,
+			   A.REG_ID,
+			   A.UPD_DT,
+			   A.UPD_ID,
+			   A.TEMPLATE_NM,
+			   A.IS_FAVORITE,
+			   A.CATE_NO,
+			   TAF.SAVE_FILE_NAME,
+			   CASE 
+			   	WHEN T.CATE_NM = 'office' then '업무'
+			   	WHEN T.CATE_NM = 'daily' then '생활'
+			   	WHEN T.CATE_NM = 'trip' then '여행'
+			   	ELSE ''
+			   END AS CATE_NM
+		FROM TBL_USER_TEMPLATE A
+			INNER JOIN TBL_CATE T ON T.CATE_NO = A.CATE_NO
+			LEFT JOIN TBL_ATTCH_FILE TAF ON TAF.REF_NO = A.TEMPLATE_NO
+			AND TAF.FILE_CATE1 = 'template'
+			AND TAF.FILE_CATE2 = 'thumnail'
+		WHERE 1=1
+		AND A.DEL_YN = 'N'
+		  AND A.USER_ID = #{userId}
+		  <if test='cateNo == ""'>
+			AND IS_FAVORITE = 'Y'
+		  </if>
+		  <if test='cateNo > 0'>
+			AND A.CATE_NO = #{cateNo}
+		  </if>
+		<if test='sort == 0'>
+		ORDER BY A.UPD_DT DESC
+		</if>
+		<if test='sort == 1'>
+		ORDER BY A.REG_DT DESC
+		</if>
+		<if test='sort == 2'>
+		ORDER BY A.ALARM_DT DESC
+		</if>
+		<if test='sort == 3'>
+		ORDER BY A.TEMPLATE_NM DESC
+		</if>
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<select id="getTemplateDetailData" parameterType="com.swygbro.packup.template.vo.TemplateVo" resultType="com.swygbro.packup.template.vo.TemplateVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTemplateDetailData
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 번호 검색
+		 *
+		 */
+		SELECT A.TEMPLATE_NO,
+			   A.USER_ID,
+			   A.REG_DT,
+			   A.REG_ID,
+			   A.UPD_DT,
+			   A.UPD_ID,
+			   A.TEMPLATE_NM,
+			   B.ORG_FILE_NAME,
+			   A.ALARM_DT,
+			   A.ALARM_TIME,
+			   A.REPEAT_TYPE,
+			   A.ALARM_TEXT,
+			   A.SLACK_YN,
+			   A.GOOGLE_CALENDAR_YN
+		FROM TBL_USER_TEMPLATE A
+				 LEFT JOIN TBL_ATTCH_FILE B ON A.TEMPLATE_NO = B.REF_NO
+		WHERE 1=1
+		  AND A.TEMPLATE_NO = #{templateNo}
+		  AND A.REG_ID = #{userId}
+	</select>
+
+	<update id="templateUpdate" parameterType="com.swygbro.packup.template.vo.TemplateVo">
+		UPDATE TBL_USER_TEMPLATE
+		SET
+			<if test='templateNm != null and templateNm != ""'>
+			TEMPLATE_NM = #{templateNm},
+			</if>
+			<if test='cateNo != null and cateNo != ""'>
+			CATE_NO = #{cateNo},
+			</if>
+			<if test='alarmText != null and alarmText != ""'>
+			ALARM_TEXT = #{alarmText},
+			</if>
+			UPD_ID = #{userId},
+			UPD_DT = NOW()
+		WHERE TEMPLATE_NO = #{templateNo}
+	</update>
+
+	<update id="templateUpdateStep" parameterType="com.swygbro.packup.template.vo.TempStepVo">
+		UPDATE TBL_USER_TEMPLATE_STEP
+			SET 
+				STEP_X = #{stepX},
+				STEP_Y = #{stepY},
+				DEL_YN = #{delYn},
+				UPD_ID = #{userId},
+				UPD_DT = NOW()
+		WHERE TEMPLATE_NO = #{templateNo}
+		AND TEMPLATE_STEP_NO = #{templateStepNo}
+		AND STEP = #{step}
+	</update>
+
+	<update id="templateUpdateStepObj" parameterType="com.swygbro.packup.template.vo.TempStepObjVo">
+		UPDATE TBL_USER_TEMPLATE_STEP_OBJ
+		SET
+			CATE_NO = #{cateNo},
+			OBJ_NO = #{objNo},
+			OBJ_NM = #{objNm},
+			LOC_NUM = #{locNum},
+			DEL_YN = #{delYn},
+			UPD_ID = #{userId},
+			UPD_DT = NOW(),
+			STEP = #{step}
+		WHERE TEMP_USER_OBJ_NO = #{tempUserObjNo}
+		  AND TEMPLATE_STEP_NO = #{templateStepNo}
+		  AND STEP = #{step}
+	</update>
+
+	<update id="templateUpdateStepText" parameterType="com.swygbro.packup.template.vo.TempStepTextVo">
+		UPDATE TBL_USER_TEMPLATE_STEP_TEXT
+		SET
+			TEXT = #{text},
+			STEP_TEXT_X = #{stepTextX},
+			STEP_TEXT_Y = #{stepTExtY},
+			STEP = #{step},
+			DEL_YN = #{delYn},
+			UPD_ID = #{userId},
+			UPD_DT = NOW()
+		WHERE TEXT_NO = #{textNo}
+		  AND TEMPLATE_STEP_NO = #{templateStepNo}
+		  AND STEP = #{step}
+	</update>
+
+	<delete id="deleteTempalteStepObj" parameterType="com.swygbro.packup.template.vo.TempStepObjVo">
+		DELETE
+		FROM TBL_USER_TEMPLATE_STEP_OBJ
+		WHERE TEMPLATE_NO = #{templateNo}
+	</delete>
+
+	<delete id="deleteTempalteStepText" parameterType="com.swygbro.packup.template.vo.TempStepTextVo">
+		DELETE
+		FROM TBL_USER_TEMPLATE_STEP_TEXT
+		WHERE TEMPLATE_NO = #{templateNo}
+	</delete>
+
+	<delete id="deleteTemplate" parameterType="com.swygbro.packup.template.vo.TempStepObjVo">
+		DELETE
+		FROM TBL_USER_TEMPLATE
+		WHERE TEMPLATE_NO = #{templateNo}
+	</delete>
+
+	<delete id="deleteStepTemplate" parameterType="com.swygbro.packup.template.vo.TempStepTextVo">
+		DELETE
+		FROM TBL_USER_TEMPLATE_STEP
+		WHERE TEMPLATE_NO = #{templateNo}
+	</delete>
+
+	<delete id="deleteTempalteStepObjInt" parameterType="com.swygbro.packup.template.vo.TempStepObjVo">
+		DELETE
+		FROM TBL_USER_TEMPLATE_STEP_OBJ
+		WHERE TEMPLATE_NO = #{templateNo}
+	</delete>
+
+	<delete id="deleteTempalteStepTextInt" parameterType="com.swygbro.packup.template.vo.TempStepTextVo">
+		DELETE
+		FROM TBL_USER_TEMPLATE_STEP_TEXT
+		WHERE TEMPLATE_NO = #{templateNo}
+	</delete>
+
+	<select id="getTemplateStepNo" parameterType="com.swygbro.packup.template.vo.TempStepVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTemplateStepNo
+		 * 작성자 : 홍섭
+		 * 설명 : 템플릿 스탭 번호 검색
+		 * 
+		 */
+		 SELECT A.TEMPLATE_STEP_NO
+        FROM TBL_USER_TEMPLATE_STEP A
+        WHERE 1=1
+        AND A.TEMPLATE_NO = #{templateNo}
+        AND A.STEP = #{step}
+	</select>
+
+
+	<select id="getTotalCnt" parameterType="com.swygbro.packup.template.vo.TempStepVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTotalCnt
+		 * 작성자 : 홍섭
+		 * 설명 : 사용자의 템플릿 전체 개수
+		 * 
+		 */
+		 SELECT COUNT(1)
+        FROM TBL_USER_TEMPLATE A
+        WHERE 1=1
+        AND A.USER_ID = #{userId}
+        AND A.DEL_YN = 'N'
+	</select>
+
+	<select id="getTotalFavoriteCnt" parameterType="com.swygbro.packup.template.vo.TempStepVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTotalFavoriteCnt
+		 * 작성자 : 홍섭
+		 * 설명 : 사용자의 템플릿 즐겨찾기 전체 개수
+		 * 
+		 */
+		 SELECT COUNT(1)
+        FROM TBL_USER_TEMPLATE A
+        WHERE 1=1
+        AND A.USER_ID = #{userId}
+		AND A.IS_FAVORITE = 'Y'
+        AND A.DEL_YN = 'N'
+	</select>
+
+	<select id="getTotalCateCnt" parameterType="com.swygbro.packup.template.vo.TempStepVo">
+		/**
+		 * com.swygbro.packup.template.mapper.TemplateMapper > getTotalOfficeCnt
+		 * 작성자 : 홍섭
+		 * 설명 : 사용자의 템플릿 즐겨찾기 전체 개수
+		 * 
+		 */
+		 SELECT COUNT(1)
+        FROM TBL_USER_TEMPLATE A
+        WHERE 1=1
+        AND A.USER_ID = #{userId}
+		AND A.CATE_NO = #{cateNo}
+        AND A.DEL_YN = 'N'
+	</select>
+
+	<update id="templateStatusUpdate" parameterType="com.swygbro.packup.template.vo.TemplateVo">
+		UPDATE TBL_USER_TEMPLATE
+		SET
+			<if test='isFavorite != null and isFavorite != ""'>
+			IS_FAVORITE = #{isFavorite},
+			</if>
+			<if test='templateNm != null and templateNm != ""'>
+			TEMPLATE_NM = #{templateNm},
+			</if>
+			UPD_ID = #{userId},
+			UPD_DT = NOW()
+		WHERE TEMPLATE_NO = #{templateNo}
+	</update>
+
+	<update id="templateAlarmSave" parameterType="com.swygbro.packup.template.vo.TemplateVo">
+		UPDATE TBL_USER_TEMPLATE
+		SET
+			ALARM_DT = STR_TO_DATE(#{alarmDt}, '%Y-%m-%d %H:%i:%s'),
+			ALARM_TIME = #{alarmTime},
+			<if test='repeatType != null and repeatType != ""'>
+			REPEAT_TYPE = #{repeatType},
+			</if>
+			ALARM_REPEAT_DAY = #{alarmRepeatDay},
+			<if test='googleCalendarYn != null and googleCalendarYn != ""'>
+			GOOGLE_CALENDAR_YN = #{googleCalendarYn},
+			</if>
+			<if test='slackYn != null and slackYn != ""'>
+			SLACK_YN = #{slackYn},
+			</if>
+			<if test='alarmText != null and alarmText != ""'>
+			ALARM_TEXT = #{alarmText},
+			</if>
+			UPD_ID = #{userId},
+			UPD_DT = NOW()
+		WHERE TEMPLATE_NO = #{templateNo}
+	</update>
+
+</mapper>

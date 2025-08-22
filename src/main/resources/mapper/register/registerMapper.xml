@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swygbro.packup.register.mapper.RegisterMapper">
+	<select id="chkId" parameterType="String">
+		/**
+		 * com.swygbro.packup.register.mapper.RegisterMapper > chkId
+		 * 작성자 : 홍섭
+		 * 설명 : 로그인용 사용자 조회
+		 * 
+		 */
+		 SELECT count(1)
+		   FROM TBL_USER TU
+		  WHERE USER_ID = #{userId}
+		 	AND DEL_YN = 'N'
+	</select>
+
+	<insert id="insertUser" parameterType="com.swygbro.packup.user.vo.UserVo">
+		/**
+		* com.swygbro.packup.register.mapper.RegisterMapper > registerUser
+		* 작성자 : 홍섭
+		* 설명 : 사용자 회원가입 등록
+		* 
+		*/
+
+		<selectKey keyProperty="userNo" resultType="Integer" order="BEFORE">
+			SELECT IFNULL(MAX(USER_NO), 0) + 1 AS userNo FROM TBL_USER
+		</selectKey>
+
+		INSERT INTO TBL_USER (
+			USER_NO,
+			USER_ID,
+			USER_PW,
+			USER_NM,
+			EMAIL,
+			PHONE_NUM,
+			PERSONAL_INFO_ACQ,
+			REG_ID,
+			REG_DT,
+			DEL_YN,
+			INFO_ACQ,
+			ROLE,
+			MKT_AGREE
+		) VALUES (
+			#{userNo},
+			#{userId},
+			#{userPw},
+			CONCAT('packUp#', #{userNo}),  <!-- 여기서 조합 -->
+			#{email},
+			#{phoneNum},
+			#{personalInfoAcq},
+			#{userId},
+			NOW(),
+			'N',
+			#{infoAcq},
+			#{role},
+			#{mktAgree}
+		)
+	</insert>
+</mapper>

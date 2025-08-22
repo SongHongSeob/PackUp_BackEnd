@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swygbro.packup.user.Mapper.UserMapper">
+	<select id="selectUserById" parameterType="String" resultType="com.swygbro.packup.config.CustomUserDetails">
+		/**
+		 * com.swygbro.packup.user.Mapper.UserMapper > selectUserById
+		 * 작성자 : 홍섭
+		 * 설명 : 로그인용 사용자 조회
+		 * 
+		 */
+		 SELECT
+			 USER_ID,
+			 USER_PW,
+			 ROLE,
+			 CASE WHEN USE_YN = 'Y' THEN 1 ELSE 0 END as enabled
+		   FROM TBL_USER TU
+		  WHERE USER_ID = #{userId}
+		 	AND DEL_YN = 'N'
+	</select>
+
+	<update id="updateLastLoginDate" parameterType="String">
+		/**
+		 * com.swygbro.packup.user.Mapper.UserMapper > updateLastLoginDate
+		 * 작성자 : 홍섭
+		 * 설명 : 로그인 시 최종 로그인 일시 업데이트
+		 * 
+		 */
+		UPDATE TBL_USER 
+		   SET LAST_LOGIN_DT = NOW()
+		 WHERE USER_ID = #{userId}
+		   AND DEL_YN = 'N'
+	</update>
+
+	<select id="getUserInfo" parameterType="String" resultType="com.swygbro.packup.user.vo.UserVo">
+		/**
+		 * com.swygbro.packup.user.Mapper.UserMapper > getUserInfo
+		 * 작성자 : 홍섭
+		 * 설명 : 사용자 정보 조회
+		 * 
+		 */
+		SELECT
+			USER_ID,
+			USER_NM,
+			EMAIL,
+			PHONE_NUM,
+			GENDER,
+			ROLE
+		FROM TBL_USER
+		WHERE USER_ID = #{userId}
+		  AND DEL_YN = 'N'
+	</select>
+
+	<update id="updateUser" parameterType="com.swygbro.packup.user.vo.UserVo">
+		/**
+		 * com.swygbro.packup.user.Mapper.UserMapper > updateUser
+		 * 작성자 : 홍섭
+		 * 설명 : 사용자 정보 수정
+		 * 
+		 */
+		UPDATE TBL_USER
+		SET 
+			<if test='userNm != null and userNm != ""'>
+			USER_NM = #{userNm},
+			</if>
+			<if test='phoneNum != null and phoneNum != ""'>
+			PHONE_NUM = #{phoneNum},
+			</if>
+			UPD_DT = NOW(),
+			UPD_ID = #{updId}
+			<if test='userPw != null and userPw != ""'>
+			, USER_PW = #{userPw}
+			</if>
+		WHERE USER_ID = #{userId}
+		  AND DEL_YN = 'N'
+	</update>
+
+	<select id="getUserByEmail" parameterType="String" resultType="com.swygbro.packup.user.vo.UserVo">
+		/**
+		 * com.swygbro.packup.user.Mapper.UserMapper > getUserByEmail
+		 * 작성자 : 홍섭
+		 * 설명 : 이메일로 사용자 정보 조회
+		 * 
+		 */
+		SELECT
+			USER_ID,
+			USER_PW,
+			USER_NM,
+			PHONE_NUM,
+			GENDER,
+			ROLE
+		FROM TBL_USER
+		WHERE USER_ID = #{userId}
+		  AND DEL_YN = 'N'
+	</select>
+</mapper>

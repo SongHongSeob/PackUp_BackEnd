@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.swygbro.packup.notification.mapper.NotificationMapper">
+
+    <insert id="insertNotification" parameterType="com.swygbro.packup.notification.vo.NotificationVo">
+        INSERT INTO TBL_NOTIFICATION (
+            USER_ID,              MESSAGE,        TEMPLATE_NO,       TEMPLATE_NM,
+            NOTIFICATION_TIME,    SENT_AT,        SENT,              READ_YN
+        ) VALUES (
+            #{userId},            #{message},     #{templateNo},     #{templateNm},
+            #{notificationTime},  #{sentAt},      #{sent},           #{readYn}
+        )
+    </insert>
+
+    <select id="countUnread" resultType="int">
+        SELECT COUNT(*)
+          FROM TBL_NOTIFICATION
+         WHERE USER_ID = #{userId}
+           AND READ_YN = '0'
+    </select>
+
+    <update id="markAllAsRead">
+        UPDATE TBL_NOTIFICATION SET
+               READ_YN = '1'
+         WHERE USER_ID = #{userId}
+           AND READ_YN = '0'
+    </update>
+
+    <select id="selectRecentNotifications" resultType="com.swygbro.packup.notification.vo.NotificationVo">
+        SELECT USER_ID,
+               MESSAGE,
+               TEMPLATE_NM,
+               TEMPLATE_NO,
+               NOTIFICATION_TIME,
+               SENT_AT,
+               SENT,
+               READ_YN
+          FROM TBL_NOTIFICATION
+         WHERE USER_ID = #{userId}
+         ORDER BY SENT_AT DESC
+         LIMIT #{limit}
+    </select>
+
+    <update id="updateWebhookUrl">
+        UPDATE TBL_USER SET
+            SLACK_WEBHOOK_URL = #{webhookUrl}
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <select id="getWebhookUrl" resultType="java.lang.String">
+        SELECT SLACK_WEBHOOK_URL
+         FROM TBL_USER
+        WHERE USER_ID = #{userId}
+          AND (SLACK_WEBHOOK_URL IS NOT NULL AND SLACK_WEBHOOK_URL != '')
+    </select>
+
+    <select id="existsNotification" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+              FROM TBL_NOTIFICATION
+             WHERE USER_ID = #{userId}
+               AND TEMPLATE_NO = #{templateNo}
+               AND DATE_FORMAT(NOTIFICATION_TIME, '%Y-%m-%d %H:%i') = #{notificationTime}
+        )
+    </select>
+</mapper>

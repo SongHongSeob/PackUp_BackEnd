@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.swygbro.packup.file.mapper.FileMapper">
+
+    <insert id="insertAttachFile" parameterType="com.swygbro.packup.file.vo.AttachFileVo">
+        <selectKey keyProperty="fileNo" resultType="Integer" order="BEFORE">
+			SELECT IFNULL(MAX(FILE_NO), 0) + 1 FROM TBL_ATTCH_FILE
+		</selectKey>
+        INSERT INTO TBL_ATTCH_FILE (
+            FILE_NO,
+            FILE_CATE1,
+            FILE_CATE2,
+            REF_NO,
+            ORG_FILE_NAME,
+            SAVE_FILE_NAME,
+            FILE_PATH,
+            FILE_SIZE,
+            DEL_YN,
+            USE_YN,
+            REG_DT,
+            REG_ID,
+            UPD_DT,
+            UPD_ID
+        ) VALUES (
+            #{fileNo},
+            #{fileCate1},
+            #{fileCate2},
+            #{refNo},
+            #{orgFileName},
+            #{saveFileName},
+            #{filePath},
+            #{fileSize},
+            #{delYn},
+            #{useYn},
+            NOW(),
+            #{regId},
+            NOW(),
+            #{updId}
+        )
+    </insert>
+
+    <select id="selectFilesByRefNo" resultType="com.swygbro.packup.file.vo.AttachFileVo">
+        SELECT 
+            FILE_NO as fileNo,
+            REF_NO as refNo,
+            ORG_FILE_NAME as orgFileName,
+            SAVE_FILE_NAME as saveFileName,
+            FILE_PATH as filePath,
+            FILE_SIZE as fileSize,
+            DEL_YN as delYn,
+            REG_DT as regDt,
+            REG_ID as regId,
+            UPD_DT as updDt,
+            UPD_ID as updId
+        FROM TBL_ATTCH_FILE 
+        WHERE REF_NO = #{refNo} 
+        AND FILE_CATE1 = #{fileCate1}
+        AND FILE_CATE2 = #{fileCate2}
+        AND DEL_YN = 'N'
+    </select>
+
+    <update id="updateFileDelYn" parameterType="int">
+        UPDATE TBL_ATTCH_FILE 
+        SET DEL_YN = 'Y',
+            UPD_DT = NOW()
+        WHERE FILE_NO = #{fileNo}
+    </update>
+
+    <delete id="deleteFile" parameterType="int">
+        DELETE FROM TBL_ATTCH_FILE 
+        WHERE FILE_NO = #{fileNo}
+    </delete>
+
+    <update id="updateAttachFile" parameterType="com.swygbro.packup.file.vo.AttachFileVo">
+        UPDATE TBL_ATTCH_FILE 
+        SET 
+            ORG_FILE_NAME = #{orgFileName},
+            SAVE_FILE_NAME = #{saveFileName},
+            FILE_PATH = #{filePath},
+            FILE_SIZE = #{fileSize},
+            DEL_YN = #{delYn},
+            UPD_DT = NOW(),
+            UPD_ID = #{updId}
+        WHERE REF_NO = #{refNo} 
+        AND FILE_CATE1 = #{fileCate1}
+        AND FILE_CATE2 = #{fileCate2}
+        AND DEL_YN = 'N'
+    </update>
+
+</mapper>

@@ -1,0 +1,60 @@
+name: Deploy to EC2
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [release]
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Gradle Build
+        run: ./gradlew clean build
+
+      - name: Docker Build
+        run: docker build -t packup-api:latest .
+
+      - name: Save Docker image to tar
+        run: docker save -o packup-api.tar packup-api:latest
+
+      - name: SCP image to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no packup-api.tar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            docker stop packup || true
+            docker rm packup || true
+            docker load -i packup-api.tar
+            docker run -d \
+              --name packup \
+              -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e SLACK_CLIENT_ID='${{ secrets.SLACK_CLIENT_ID }}' \
+              -e SLACK_CLIENT_SECRET='${{ secrets.SLACK_CLIENT_SECRET }}' \
+              -e GOOGLE_CALENDAR_CLIENT_ID='${{ secrets.GOOGLE_CALENDAR_CLIENT_ID }}' \
+              -e GOOGLE_CALENDAR_CLIENT_SECRET='${{ secrets.GOOGLE_CALENDAR_CLIENT_SECRET }}' \
+              -e JWT_SECRET_KEY='${{ secrets.JWT_SECRET_KEY }}' \
+              packup-api
+          EOF

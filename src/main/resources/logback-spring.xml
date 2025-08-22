@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+	<!-- 변수 지정 -->
+	<!-- <property name="LOG_DIR" value="./log" /> -->
+	<!-- <property name="LOG_PATH_NAME" value="${LOG_DIR}/data.log" /> -->
+
+	<!-- FILE Appender -->
+	<!-- <appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH_NAME}</file>
+		일자별로 로그파일 적용하기
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_PATH_NAME}.%d{yyyyMMdd}</fileNamePattern>
+			<maxHistory>10</maxHistory> 일자별 백업파일의 보관기간
+		</rollingPolicy>
+		<encoder>
+			<charset>UTF-8</charset>
+			  로그시간 + 패키지 및 클래스명 + 메소드명 + 메소드내에 로그위치 + 로깅메시지
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger[%method:%line] - %msg%n</pattern>
+		</encoder>
+	</appender> -->
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<charset>UTF-8</charset>
+			<!-- 로그시간 + 패키지 및 클래스명 + 메소드명 + 메소드내에 로그위치 + 로깅메시지 -->
+			<pattern>%d{yyyyMMdd HH:mm:ss.SSS} [%thread] %-3level %logger{5} - %msg %n</pattern>
+			<!-- <Pattern>[%-5level] %d{YYYY-MM-dd HH:mm:ss} %logger{36} - %msg %n</Pattern> -->
+		</encoder>
+	</appender>
+
+
+	<logger name="org.springframework" level="DEBUG" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="jdbc" level="OFF"/>
+
+	  <logger name="jdbc.sqlonly" level="OFF"/>
+	  <logger name="jdbc.sqltiming" level="DEBUG"/>
+	  <logger name="jdbc.audit" level="OFF"/>
+	  <logger name="jdbc.resultset" level="OFF"/>
+	  <logger name="jdbc.resultsettable" level="DEBUG"/>
+	  <logger name="jdbc.connection" level="OFF"/>
+	  <logger name="io.lettuce.core" level="OFF"/> <!-- Redis -->
+	  <logger name="org.springframework.data.redis" level="OFF"/> <!-- Redis -->
+	  <logger name="org.springframework.session.web.http.SessionRepositoryFilter.SESSION_LOGGER" level="INFO"/> <!-- 로그아웃 시 불필요한 로그가 출력되어 info레벨로 변경 -->
+
+	<!-- <logger name="org.hibernate.SQL" level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</logger> -->
+	<!-- <logger name="org.hibernate.type" level="TRACE">
+		<appender-ref ref="STDOUT" />
+	</logger> -->
+	<!-- <logger name="org.hibernate.type.BasicTypeRegistry" level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</logger> -->
+<!-- 	<logger name="org.thymeleaf" level="INFO"/> -->
+<!-- 	<logger name="org.quartz.core" level="INFO"/> -->
+
+
+	<!-- profile 을 읽어서 appender 을 설정할수 있다.(phase별 파일을 안만들어도 되는 좋은 기능) -->
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
