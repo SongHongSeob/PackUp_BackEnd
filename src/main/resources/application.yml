@@ -15,7 +15,7 @@ spring:
   
 
   datasource:
-    url: jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: swyp6
     password: Swyp10_6group
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy

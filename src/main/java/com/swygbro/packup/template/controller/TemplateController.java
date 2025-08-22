@@ -172,6 +172,8 @@ public class TemplateController {
     @PostMapping("/templateDelete")
     public ResponseEntity<Map<String, Object>> templateDelete(@RequestBody TemplateVo tempVo){
 
+        log.info("tempVo : "+tempVo);
+
         Map<String, Object> teplateSaveMap = templateService.templateDelete(tempVo);
 
         Map<String, Object> response = new HashMap<>();
