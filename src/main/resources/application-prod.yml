@@ -58,7 +58,7 @@ spring:
 
   # 데이터소스 설정 (환경변수로 관리)
   datasource:
-    url: ${DATABASE_URL:jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    url: ${DATABASE_URL:jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true}
     username: ${DATABASE_USERNAME:swyp6}
     password: ${DATABASE_PASSWORD:Swyp10_6group}
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy

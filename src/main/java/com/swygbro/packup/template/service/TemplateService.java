@@ -293,12 +293,8 @@ public class TemplateService {
       int templateNo = tempVo.getTemplateNo();
 
       int tempObjDeleteCnt = templateMapper.deleteTempalteStepObjInt(templateNo);
-      if(tempObjDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 스탭 오브젝트 삭제시 오류 발생");
-        return responseMap;
-      }
+
+      System.out.println("tempObjDeleteCnt : "+tempObjDeleteCnt);
 
       int tempTextDeleteCnt = templateMapper.deleteTempalteStepTextInt(templateNo);
 
@@ -307,7 +303,7 @@ public class TemplateService {
       int tempDeleteCnt = templateMapper.deleteTemplate(templateNo);
 
       responseMap.put("status", saveStatus);
-          responseMap.put("resposeText", "템플릿 정상 삭제");
+      responseMap.put("resposeText", "템플릿 정상 삭제");
 
       return responseMap;
   }
