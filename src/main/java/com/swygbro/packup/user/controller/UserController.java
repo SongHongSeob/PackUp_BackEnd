@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/user")
 @Slf4j
 public class UserController {
 
@@ -22,7 +22,7 @@ public class UserController {
     /**
      * JWT 토큰으로 현재 로그인한 사용자 정보 조회
      */
-    @PostMapping("/user")
+    @PostMapping("/getCurrentUser")
     public ResponseEntity<Map<String, Object>> getCurrentUser(Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
         
