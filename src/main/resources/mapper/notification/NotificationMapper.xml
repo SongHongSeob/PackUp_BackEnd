@@ -54,4 +54,14 @@
         WHERE USER_ID = #{userId}
           AND (SLACK_WEBHOOK_URL IS NOT NULL AND SLACK_WEBHOOK_URL != '')
     </select>
+
+    <select id="existsNotification" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+              FROM TBL_NOTIFICATION
+             WHERE USER_ID = #{userId}
+               AND TEMPLATE_NO = #{templateNo}
+               AND DATE_FORMAT(NOTIFICATION_TIME, '%Y-%m-%d %H:%i') = #{notificationTime}
+        )
+    </select>
 </mapper>

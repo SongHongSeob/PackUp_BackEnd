@@ -18,4 +18,6 @@ public class CommonVo {
     private String delYn;
 
     private String userId;
+
+    private int sort;
 }

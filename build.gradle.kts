@@ -50,10 +50,18 @@ dependencies {
 	implementation("commons-io:commons-io:2.17.0")
 	// https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload 파일업로드
 	implementation("commons-fileupload:commons-fileupload:1.5")
+	// Apache Commons Lang3
+	implementation("org.apache.commons:commons-lang3:3.12.0")
 	// jwt 설정
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 	implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
 	implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
+	// Google Calendar API
+	implementation("com.google.api-client:google-api-client:2.7.0")
+	implementation("com.google.oauth-client:google-oauth-client-jetty:1.36.0")
+	implementation("com.google.apis:google-api-services-calendar:v3-rev20240906-2.0.0")
+	implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
+	implementation("com.google.http-client:google-http-client-gson:1.44.1")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -62,10 +70,13 @@ dependencies {
 	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	systemProperty("spring.profiles.active", "test")
+	environment("SPRING_PROFILES_ACTIVE", "test")
 }
 
 tasks.test {

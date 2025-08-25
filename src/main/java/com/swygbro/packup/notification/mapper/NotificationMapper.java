@@ -24,4 +24,6 @@ public interface NotificationMapper {
     void updateWebhookUrl(@Param("userId") String userId, @Param("webhookUrl") String webhookUrl);
 
     Optional<String> getWebhookUrl(String userId);
+
+    boolean existsNotification(NotificationVo notification);
 }

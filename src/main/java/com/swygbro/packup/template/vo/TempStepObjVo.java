@@ -13,8 +13,8 @@ public class TempStepObjVo extends CommonVo{
     private String objNm;
     private int objCnt;                     // 물품 개수
     private String useYn;                   // 사용여부
-    private String delYn;                   // 삭제여부
-    private int locNum;                     // 스텝에 존재하는 오브젝트 위치 값
+    private double objX;                     // 스텝에 존재하는 오브젝트 X 위치 값
+    private double objY;                     // 스텝에 존재하는 오브젝트 Y 위치 값
     private int step;
     private int templateNo;
 }

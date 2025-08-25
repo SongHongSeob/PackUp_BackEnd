@@ -9,3 +9,6 @@ COPY ${JAR_FILE} app.jar
 
 # 4. jar 실행
 ENTRYPOINT ["java", "-jar", "/app.jar"]
+
+# 5. JVM 타임존
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "/app.jar"]

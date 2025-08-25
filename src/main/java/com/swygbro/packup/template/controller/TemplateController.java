@@ -1,14 +1,18 @@
 package com.swygbro.packup.template.controller;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.checkerframework.checker.units.qual.s;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.swygbro.packup.file.vo.AttachFileVo;
 import com.swygbro.packup.template.service.TemplateService;
 import com.swygbro.packup.template.vo.CateObjVo;
+import com.swygbro.packup.template.vo.TempStepVo;
 import com.swygbro.packup.template.vo.TemplateVo;
 
 import lombok.AllArgsConstructor;
@@ -74,9 +81,34 @@ public class TemplateController {
 
 
     @PostMapping("/templateSave")
-    public ResponseEntity<Map<String, Object>> templateSave(TemplateVo tempVo,
-                                                                @RequestParam("imgFile") MultipartFile imgFile) throws IOException{
+    public ResponseEntity<Map<String, Object>> templateSave(@RequestParam String templateNm,
+                                                            @RequestParam String cateNo,
+                                                            @RequestParam String stepsList,
+                                                            @RequestParam String step,
+                                                                @RequestParam("imgFile") MultipartFile imgFile,
+                                                                Authentication authentication) throws IOException{
+        
+        TemplateVo tempVo = new TemplateVo();
+        log.info("stepsList : "+stepsList);
+        log.info("authentication.getName() : "+authentication.getName());
+        String userId = authentication.getName();
 
+        Gson gson = new Gson();
+
+        // Type 정의
+        Type listType = new TypeToken<List<TempStepVo>>(){}.getType();
+        
+        // JSON을 List로 변환
+        List<TempStepVo> stepsList1 = gson.fromJson(stepsList, listType); 
+
+        tempVo.setTemplateNm(templateNm);
+        tempVo.setCateNo(Integer.parseInt(cateNo));
+        tempVo.setStepsList(stepsList1);
+        tempVo.setRegId(userId);
+        tempVo.setUpdId(userId);
+        tempVo.setUserId(userId);
+        tempVo.setStep(Integer.parseInt(step));
+        
         Map<String, Object> teplateSaveMap = templateService.templateSave(tempVo,imgFile);
 
         Map<String, Object> response = new HashMap<>();
@@ -92,8 +124,36 @@ public class TemplateController {
     }
 
     @PostMapping("/templateUpdate")
-    public ResponseEntity<Map<String, Object>> templateUpdate(TemplateVo tempVo,
-                                                                @RequestParam("imgFile") MultipartFile imgFile){
+    public ResponseEntity<Map<String, Object>> templateUpdate(@RequestParam String templateNm,
+                                                             @RequestParam String templateNo,
+                                                             @RequestParam String cateNo,
+                                                             @RequestParam String stepsList,
+                                                             @RequestParam String step,
+                                                                @RequestParam("imgFile") MultipartFile imgFile,
+                                                                Authentication authentication){
+
+
+        TemplateVo tempVo = new TemplateVo();
+        log.info("stepsList : "+stepsList);
+        log.info("authentication.getName() : "+authentication.getName());
+        String userId = authentication.getName();
+
+        Gson gson = new Gson();
+
+        // Type 정의
+        Type listType = new TypeToken<List<TempStepVo>>(){}.getType();
+        
+        // JSON을 List로 변환
+        List<TempStepVo> stepsList1 = gson.fromJson(stepsList, listType); 
+
+        tempVo.setTemplateNm(templateNm);
+        tempVo.setCateNo(Integer.parseInt(cateNo));
+        tempVo.setStepsList(stepsList1);
+        tempVo.setRegId(userId);
+        tempVo.setUpdId(userId);
+        tempVo.setUserId(userId);
+        tempVo.setTemplateNo(Integer.parseInt(templateNo));
+        tempVo.setStep(Integer.parseInt(step));
 
         Map<String, Object> teplateSaveMap = templateService.templateUpdate(tempVo, imgFile);
 
@@ -111,6 +171,8 @@ public class TemplateController {
 
     @PostMapping("/templateDelete")
     public ResponseEntity<Map<String, Object>> templateDelete(@RequestBody TemplateVo tempVo){
+
+        log.info("tempVo : "+tempVo);
 
         Map<String, Object> teplateSaveMap = templateService.templateDelete(tempVo);
 
@@ -141,9 +203,7 @@ public class TemplateController {
             
             // 서비스 호출
             tempVo = templateService.getDetailData(tempVo.getTemplateNo());
-            
-            System.out.println("tempVo : " + tempVo);
-            
+
             // 조회 결과 검증
             if (tempVo == null) {
                 response.put("templateData", null);
@@ -172,14 +232,73 @@ public class TemplateController {
     }
 
     @PostMapping("/getUserTemplateDataList")
-    public ResponseEntity<Map<String, Object>> getUserTemplateDataList(@RequestBody TemplateVo tempVo) {
+    public ResponseEntity<Map<String, Object>> getUserTemplateDataList(@RequestBody TemplateVo tempVo, Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
+        
+        if (authentication == null || authentication.getName() == null) {
+            response.put("success", false);
+            response.put("message", "인증되지 않은 사용자입니다.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        String userId = authentication.getName();
+        log.info("Getting user tempateInfo for: {}", userId);
+
+        tempVo.setUserId(userId);
+        
         List<TemplateVo> userTempList = templateService.getTemplatesByUserId(tempVo);
+        Map<String, Integer> templateCnt = templateService.getTemplateCnt(tempVo);
 
         response.put("templateDataList", userTempList);
+        response.put("templateCntList", templateCnt);
         response.put("responseText", "success");
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/templateStatusUpdate")
+    public ResponseEntity<Map<String, Object>> templateStatusUpdate(@RequestBody TemplateVo tempVo,
+                                                                Authentication authentication){
+        
+        tempVo.setUpdId(authentication.getName());
+        Map<String, Object> teplateUpdateMap = templateService.templateStatusUpdate(tempVo);
+                                                                    
+        Map<String, Object> response = new HashMap<>();
+
+        if(Boolean.TRUE.equals(teplateUpdateMap.get("status"))) {
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+        }else{
+            response.put("status", "fail");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+    }
+
+    @PostMapping("/templateAlarmSave")
+    public ResponseEntity<Map<String, Object>> templateAlarmSave(@RequestBody TemplateVo tempVo,
+                                                                Authentication authentication){
+        
+        log.info("tempVo : "+tempVo);
+
+        String userId = authentication.getName();
+
+        tempVo.setRegId(userId);
+        tempVo.setUpdId(userId);
+        tempVo.setUserId(userId);
+
+        Map<String, Object> teplateSaveMap = templateService.templateAlarmSave(tempVo);
+
+        Map<String, Object> response = new HashMap<>();
+
+        if(Boolean.TRUE.equals(teplateSaveMap.get("status"))) {
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+        }else{
+            response.put("status", "fail");
+            return ResponseEntity.badRequest().body(response);
+        }
+
     }
 
 }

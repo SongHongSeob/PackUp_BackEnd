@@ -1,5 +1,7 @@
 package com.swygbro.packup.config;
 
+import com.swygbro.packup.security.jwt.JwtAuthenticationFilter;
+import com.swygbro.packup.security.jwt.JwtUtill;
 import com.swygbro.packup.security.oauth2.CustomAuthenticationEntryPoint;
 import com.swygbro.packup.security.oauth2.CustomOAuth2UserService;
 import com.swygbro.packup.security.oauth2.OAuth2SuccessHandler;
@@ -11,6 +13,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -18,36 +26,42 @@ public class SecurityConfig {
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final OAuth2SuccessHandler OAuth2SuccessHandler;
-    private final @Lazy CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-
+    private final JwtUtill jwtUtill;
 
     public SecurityConfig(CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
                           OAuth2SuccessHandler OAuth2SuccessHandler,
-                          @Lazy CustomOAuth2UserService customOAuth2UserService,
-                          CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+                          CustomOAuth2UserService customOAuth2UserService,
+                          CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                          JwtUtill jwtUtill) {
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
         this.OAuth2SuccessHandler = OAuth2SuccessHandler;
         this.customOAuth2UserService = customOAuth2UserService;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.jwtUtill = jwtUtill;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> cors.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                
+                // JWT 인증 필터 추가
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtill), UsernamePasswordAuthenticationFilter.class)
                 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/webjars/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/lgn/*","/register/*","/register","/lgn").permitAll()     // lgn* → login*
+                        .requestMatchers("/lgn/**","/register/*","/register","/lgn").permitAll()     // lgn/** → lgn/* 변경
                         .requestMatchers("/test*").permitAll()
                         .requestMatchers("/sample/**").permitAll()
                         .requestMatchers("/component/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/temp/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()  // 통합 인증 API 포함
                         .requestMatchers("/notifications/**").permitAll()
                         .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/").permitAll()  // 루트 경로 허용
@@ -56,8 +70,8 @@ public class SecurityConfig {
                 )
                 
                 .formLogin((auth) -> auth
-                        .loginPage("/lgn/login")                        // lgn → login
-                        .loginProcessingUrl("/loginProcess")        // lgn/lgn → loginProcess
+                        .loginPage("/lgn/loginForm")                        // 폼 페이지만 별도 경로
+                        .loginProcessingUrl("/loginProcess")        // API 경로와 분리
                         .usernameParameter("username")              // mngrId → username
                         .passwordParameter("password")              // pswd → password
                         .successHandler(customAuthenticationSuccessHandler)
@@ -77,7 +91,7 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/lgn/login?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "authorization")  // JWT 쿠키도 삭제
                         .permitAll()
                 )
                 
@@ -99,6 +113,24 @@ public class SecurityConfig {
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:3000", 
+            "http://localhost:5173", 
+            "https://packup.swygbro.com",
+            "https://packupapi.xyz"  // 백엔드 도메인 추가
+        )); 
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true); // 쿠키 허용
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }

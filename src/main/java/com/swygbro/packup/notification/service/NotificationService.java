@@ -27,35 +27,40 @@ public class NotificationService {
     private final SseEmitterService sseEmitterService;
 
     public void checkAndSendNotifications() {
-        String alarmDtTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String alarmDt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String alarmTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         Map<String, String> param = new HashMap<>();
-        param.put("alarmDtTime", alarmDtTime);
+        param.put("alarmDt", alarmDt);
+        param.put("alarmTime", alarmTime);
 
         List<UserTemplateNoticeVo> targetList = stepMapper.selectNoticeTargetList(param);
-        log.info("[Notification scheduler] {} count : {}", alarmDtTime, targetList.size());
 
         for (UserTemplateNoticeVo target : targetList) {
-            String message = String.format("[%s] reserved notificaion.", alarmDtTime.substring(11));
-
             NotificationVo notification = new NotificationVo();
             notification.setUserId(target.getUserId());
-            notification.setMessage(message);
-            notification.setTemplateNm(target.getTemplateNm());
+            notification.setMessage(target.getAlarmText());
             notification.setTemplateNo(target.getTemplateNo());
-            notification.setNotificationTime(alarmDtTime);
-            notification.setSentAt(alarmDtTime);
+            notification.setTemplateNm(target.getTemplateNm());
+            notification.setNotificationTime(alarmDt);
+            notification.setSentAt(alarmDt);
             notification.setSent(true);
             notification.setReadYn(false);
 
-            // 알림 테이블에 저장
-            notificationMapper.insertNotification(notification);
-            log.info("Notification save success : userId={}, templateNo={}", notification.getUserId(), notification.getTemplateNo());
+            // 알림테이블 중복 검사
+            boolean alreadySent = notificationMapper.existsNotification(notification);
+            log.info("alreadySent :: " + alreadySent);
+            if (!alreadySent) {
+                // 알림 테이블에 저장
+                notificationMapper.insertNotification(notification);
+                log.info("Notification save success : userId={}, templateNo={}", notification.getUserId(), notification.getTemplateNo());
 
-            // SSE 알림 전송
-            sseEmitterService.send(notification.getUserId(), notification.getMessage());
-
-            sendSlackNotification(notification.getUserId(), notification.getTemplateNm() + "의 알림시각입니다.");
+                // SSE 알림 전송
+                sseEmitterService.send(notification);
+                if(target.getSlackYn().equals("Y")){
+                    sendSlackNotification(notification.getUserId(), notification.getTemplateNm() + "의 알림시각입니다.");
+                }
+            }
         }
     }
 

@@ -13,7 +13,7 @@ public class NotificationScheduler {
 
     private final NotificationService notificationService;
 
-    @Scheduled(fixedRate = 60000) // 1분마다 실행
+    @Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul") // 1분마다 00초에 실행
     public void runScheduledNotification() {
         log.debug("[Notification scheduler] per 1min notification check");
         notificationService.checkAndSendNotifications();

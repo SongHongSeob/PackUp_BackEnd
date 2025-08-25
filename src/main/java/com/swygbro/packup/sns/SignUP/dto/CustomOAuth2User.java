@@ -10,6 +10,12 @@ import java.util.*;
 
 @Getter
 public class CustomOAuth2User implements OAuth2User {
+    // ✅ 추가 필드
+    private final boolean isNewUser;             // 신규 SNS 로그인(아직 가입/연동 전) 여부
+    private final String socialId;               // “kakao_123”, “naver_abc”, “google_456” 등
+    private final String email;
+
+
     private final String userId;
     private final String userNm;
     private final String nameKey;
@@ -24,7 +30,10 @@ public class CustomOAuth2User implements OAuth2User {
                             String userNm,
                             String nameKey,
                             int userNo,
-                            socialLoginType socialLoginType) {
+                            socialLoginType socialLoginType,
+                            boolean isNewUser,
+                            String socialId,
+                            String email) {
         this.authorities = authorities;
         this.attributes = attributes;
         this.userId = userId;
@@ -32,6 +41,9 @@ public class CustomOAuth2User implements OAuth2User {
         this.nameKey = nameKey;
         this.userNo = userNo;
         this.socialLoginType = socialLoginType;
+        this.isNewUser = isNewUser;
+        this.socialId = socialId;
+        this.email = email;
     }
 
     @Override
@@ -46,6 +58,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
+
         return userId;
     }
 
@@ -65,5 +78,14 @@ public class CustomOAuth2User implements OAuth2User {
         return socialLoginType;
     }
 
+    // sns 로그인시 newUser 처리
+    public static CustomOAuth2User newUser(Collection<? extends GrantedAuthority> authorities,
+                                           Map<String, Object> attributes,
+                                           socialLoginType type,
+                                           String email,
+                                           String socialId) {
+        return new CustomOAuth2User(authorities, attributes, null, null, "name", 0, type,
+                true, socialId, email);
+    }
 
 }

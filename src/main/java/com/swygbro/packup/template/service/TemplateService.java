@@ -1,6 +1,7 @@
 package com.swygbro.packup.template.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class TemplateService {
 
         int newTemplateNo = tempVo.getTemplateNo();
 
+        String userId = tempVo.getUserId();
+
         AttachFileVo fileVo = new AttachFileVo();
 
         fileVo.setFile(imgFile);
@@ -63,6 +66,8 @@ public class TemplateService {
 
         for(int i=0;i<tempVo.getStepsList().size();i++){
             tempVo.getStepsList().get(i).setTemplateNo(newTemplateNo);
+            tempVo.getStepsList().get(i).setRegId(userId);
+            tempVo.getStepsList().get(i).setUpdId(userId);
             int templateSaveStep = templateMapper.templateSaveStep(tempVo.getStepsList().get(i));
 
             if(templateSaveStep < 1){
@@ -79,6 +84,8 @@ public class TemplateService {
                     tempVo.getStepsList().get(i).getStepObjList().get(t).setTemplateNo(newTemplateNo);
                     tempVo.getStepsList().get(i).getStepObjList().get(t).setStep(tempVo.getStepsList().get(i).getStep());
                     tempVo.getStepsList().get(i).getStepObjList().get(t).setTemplateStepNo(tempVo.getStepsList().get(i).getTemplateStepNo());
+                    tempVo.getStepsList().get(i).getStepObjList().get(t).setRegId(userId);
+                    tempVo.getStepsList().get(i).getStepObjList().get(t).setUpdId(userId);
 
                     int templateSaveStepObj = templateMapper.templateSaveStepObj(tempVo.getStepsList().get(i).getStepObjList().get(t));
 
@@ -102,6 +109,8 @@ public class TemplateService {
                     tempVo.getStepsList().get(i).getStepTextList().get(t).setTemplateNo(newTemplateNo);
                     tempVo.getStepsList().get(i).getStepTextList().get(t).setStep(tempVo.getStepsList().get(i).getStep());
                     tempVo.getStepsList().get(i).getStepTextList().get(t).setTemplateStepNo(tempVo.getStepsList().get(i).getTemplateStepNo());
+                    tempVo.getStepsList().get(i).getStepTextList().get(t).setRegId(userId);
+                    tempVo.getStepsList().get(i).getStepTextList().get(t).setUpdId(userId);
 
                     int templateSaveStepText = templateMapper.templateSaveStepText(tempVo.getStepsList().get(i).getStepTextList().get(t));
 
@@ -175,7 +184,7 @@ public class TemplateService {
         int page = tempVo.getPage();
 
         if(page > 0) {
-            int pageSize = 8;  // 한 페이지당 4개
+            int pageSize = 8;  // 한 페이지당 8개
             int offset = (page - 1) * pageSize;  // 페이지별 시작 위치 계산
             
 
@@ -199,6 +208,8 @@ public class TemplateService {
         int newTemplateNo = tempVo.getTemplateNo();
 
         AttachFileVo fileVo = new AttachFileVo();
+
+        String userId = tempVo.getUserId();
 
         fileVo.setFile(imgFile);
         fileVo.setRefNo(newTemplateNo);
@@ -229,17 +240,7 @@ public class TemplateService {
         
         for(int i=0;i<tempVo.getStepsList().size();i++){
             tempVo.getStepsList().get(i).setTemplateNo(tempVo.getTemplateNo());
-            int step = i+1;
-            int templateStepNo = templateMapper.getTemplateStepNo(tempVo.getTemplateNo(), step);
-            tempVo.getStepsList().get(i).setTemplateStepNo(templateStepNo);
-            int templateSaveStep = templateMapper.templateUpdateStep(tempVo.getStepsList().get(i));
-
-            if(templateSaveStep < 1){
-                saveStatus = false;
-                responseMap.put("status", saveStatus);
-                responseMap.put("resposeText", "템플릿 스텝 저장시 오류 발생");
-                return responseMap;
-            }
+            tempVo.getStepsList().get(i).setUpdId(userId);
             
             if(tempVo.getStepsList().get(i).getStepObjList().size() > 0){
 
@@ -247,16 +248,10 @@ public class TemplateService {
 
                     tempVo.getStepsList().get(i).getStepObjList().get(t).setTemplateNo(tempVo.getTemplateNo());
                     tempVo.getStepsList().get(i).getStepObjList().get(t).setStep(tempVo.getStepsList().get(i).getStep());
-                    tempVo.getStepsList().get(i).getStepObjList().get(t).setTemplateStepNo(templateStepNo);
+                    tempVo.getStepsList().get(i).getStepObjList().get(t).setUpdId(userId);
+                    tempVo.getStepsList().get(i).getStepObjList().get(t).setRegId(userId);
                     
                     int templateSaveStepObj = templateMapper.templateSaveStepObj(tempVo.getStepsList().get(i).getStepObjList().get(t));
-
-                    if(templateSaveStepObj < 1){
-                        saveStatus = false;
-                        responseMap.put("status", saveStatus);
-                        responseMap.put("resposeText", "템플릿 스텝 오브젝트 저장시 오류 발생");
-                        return responseMap;
-                    }
                 }
 
                 
@@ -270,16 +265,10 @@ public class TemplateService {
 
                     tempVo.getStepsList().get(i).getStepTextList().get(t).setTemplateNo(tempVo.getTemplateNo());
                     tempVo.getStepsList().get(i).getStepTextList().get(t).setStep(tempVo.getStepsList().get(i).getStep());
-                    tempVo.getStepsList().get(i).getStepTextList().get(t).setTemplateStepNo(templateStepNo);
+                    tempVo.getStepsList().get(i).getStepTextList().get(t).setUpdId(userId);
+                    tempVo.getStepsList().get(i).getStepTextList().get(t).setRegId(userId);
                     
                     int templateSaveStepText = templateMapper.templateSaveStepText(tempVo.getStepsList().get(i).getStepTextList().get(t));
-
-                    if(templateSaveStepText < 1){
-                        saveStatus = false;
-                        responseMap.put("status", saveStatus);
-                        responseMap.put("resposeText", "템플릿 스텝 텍스트 저장시 오류 발생");
-                        return responseMap;
-                    }
                 }
 
                 
@@ -304,40 +293,71 @@ public class TemplateService {
       int templateNo = tempVo.getTemplateNo();
 
       int tempObjDeleteCnt = templateMapper.deleteTempalteStepObjInt(templateNo);
-      if(tempObjDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 스탭 오브젝트 삭제시 오류 발생");
-        return responseMap;
-      }
+
+      System.out.println("tempObjDeleteCnt : "+tempObjDeleteCnt);
 
       int tempTextDeleteCnt = templateMapper.deleteTempalteStepTextInt(templateNo);
-      if(tempTextDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 스탭 텍스트 삭제시 오류 발생");
-        return responseMap;
-      }
 
       int tempStepDeleteCnt = templateMapper.deleteStepTemplate(templateNo);
-      if(tempStepDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 스탭 삭제시 오류 발생");
-        return responseMap;
-      }
 
       int tempDeleteCnt = templateMapper.deleteTemplate(templateNo);
-      if(tempDeleteCnt < 1){
-        saveStatus = false;
-        responseMap.put("status", saveStatus);
-        responseMap.put("resposeText", "템플릿 삭제시 오류 발생");
-        return responseMap;
-      }
 
       responseMap.put("status", saveStatus);
-          responseMap.put("resposeText", "템플릿 정상 삭제");
+      responseMap.put("resposeText", "템플릿 정상 삭제");
 
       return responseMap;
   }
+
+    public Map<String, Integer> getTemplateCnt(TemplateVo tempVo) {
+        
+        Map<String, Integer> getTemplateCnt = new HashMap<>();
+
+        getTemplateCnt.put("totalCnt", templateMapper.getTotalCnt(tempVo));
+        getTemplateCnt.put("totalFavoriteCnt", templateMapper.getTotalFavoriteCnt(tempVo));
+        tempVo.setCateNo(1);
+        getTemplateCnt.put("totalOfficeCnt", templateMapper.getTotalCateCnt(tempVo));
+        tempVo.setCateNo(2);
+        getTemplateCnt.put("totalDailyCnt", templateMapper.getTotalCateCnt(tempVo));
+        tempVo.setCateNo(3);
+        getTemplateCnt.put("totalTripCnt", templateMapper.getTotalCateCnt(tempVo));
+
+        return getTemplateCnt;
+    }
+
+    public Map<String, Object> templateStatusUpdate(TemplateVo tempVo) {
+        Boolean saveStatus = true;
+
+        Map<String,Object> responseMap = new HashMap<>();
+
+        int templateSave = templateMapper.templateStatusUpdate(tempVo);
+
+        if(templateSave < 1){
+            saveStatus = false;
+            responseMap.put("status", saveStatus);
+            responseMap.put("resposeText", "템플릿 즐겨찾기 수정시 오류 발생");
+            return responseMap;
+        }else{
+            responseMap.put("status", saveStatus);
+            responseMap.put("resposeText", "템플릿 정상 저장");
+            return responseMap;
+        }
+    }
+
+    public Map<String, Object> templateAlarmSave(TemplateVo tempVo) {
+        Map<String,Object> responseMap = new HashMap<>();
+        Boolean saveStatus = true;
+
+        int templateAlarmSave = templateMapper.templateAlarmSave(tempVo);
+
+        if(templateAlarmSave < 1){
+            saveStatus = false;
+            responseMap.put("status", saveStatus);
+            responseMap.put("resposeText", "템플릿 알람 등록 중 오류 발생");
+            return responseMap;
+        }else{
+            responseMap.put("status", saveStatus);
+            responseMap.put("resposeText", "템플릿 알람 등록 정상 저장");
+            return responseMap;
+        }
+    }
 }

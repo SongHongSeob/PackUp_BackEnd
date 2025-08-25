@@ -1,10 +1,9 @@
-# 여기서는 배포 설정 넣기.
+# 배포 환경 설정 (도커 환경)
 
 spring:
   application:
     name: PackUp-Backend
 
-  # TODO 추후에 url 변경 필 (배포 환경으로)
   security:
     user:
       name: admin
@@ -14,23 +13,23 @@ spring:
         registration:
           naver:
             client-name: naver
-            client-id: "naver_client_id"
-            client-secret: "naver_client_secret"
-            redirect-uri: http://localhost:8080/login/oauth2/code/naver
+            client-id: "${NAVER_CLIENT_ID}"
+            client-secret: "${NAVER_CLIENT_SECRET}"
+            redirect-uri: "https://packupapi.xyz/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
-            scope: name, email
+            scope: profile, email
           google:
             client-name: google
-            client-id: "google_client_id"
-            client-secret: "google_client_secret"
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            client-id: "${GOOGLE_CLIENT_ID}"
+            client-secret: "${GOOGLE_CLIENT_SECRET}"
+            redirect-uri: "https://packupapi.xyz/login/oauth2/code/google"
             authorization-grant-type: authorization_code
-            scope: name, email
+            scope: profile, email
           kakao:
             client-name: kakao
-            client-id: "kakao_client_id"
-            client-secret: "kakao_client_secret"
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            client-id: "${KAKAO_CLIENT_ID}"
+            client-secret: "${KAKAO_CLIENT_SECRET}"
+            redirect-uri: "https://packupapi.xyz/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             scope: profile_nickname
             client-authentication-method: client_secret_post
@@ -50,7 +49,6 @@ spring:
     view:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
-
     static-path-pattern: /static/**
 
   web:
@@ -58,11 +56,11 @@ spring:
       static-locations:
         - classpath:/static/
 
-  # 데이터소스 설정
+  # 데이터소스 설정 (환경변수로 관리)
   datasource:
-    url: jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: swyp6
-    password: Swyp10_6group
+    url: ${DATABASE_URL:jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true}
+    username: ${DATABASE_USERNAME:swyp6}
+    password: ${DATABASE_PASSWORD:Swyp10_6group}
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     hikari:
       maximum-pool-size: 300
@@ -70,29 +68,54 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
 
-  # jwt 설정
+  # Redis 설정
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+  # JWT 설정
   jwt:
     secret: "${JWT_SECRET_KEY}"
-
 
   # JPA 설정
   jpa:
     hibernate:
-      ddl-auto: update  # create, create-drop, validate, update, none
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 0219songhongseob@gmail.com
+    password: wwrugfhcaenqtptn
+    properties:
+      mail:
+       smtp:
+        auth: true
+        starttls:
+         enable: true
+         required: true
+      debug: true
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   config-location: classpath:mybatis-config.xml
 
+# 로깅 설정
 logging:
   config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    com.swygbro.packup: INFO
 
 server:
   port: 8080
 
+# 파일 업로드 설정
 file:
   upload:
     path: /home/ec2-user/uploads/
@@ -100,6 +123,20 @@ file:
     max-request-size: 104857600
     allowed-extensions: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt
 
+# 애플리케이션 URL 설정 (환경변수로 관리)
+app:
+  base-url: ${APP_BASE_URL:https://packupapi.xyz}
+  frontend-url: ${APP_FRONTEND_URL:https://packup.swygbro.com}
+  cookie-domain: ${APP_COOKIE_DOMAIN:packupapi.xyz}
+
+# Slack 설정
 slack:
   client-id: ${SLACK_CLIENT_ID}
   client-secret: ${SLACK_CLIENT_SECRET}
+
+# Google Calendar 설정
+google:
+  calendar:
+    client-id: ${GOOGLE_CALENDAR_CLIENT_ID}
+    client-secret: ${GOOGLE_CALENDAR_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_CALENDAR_REDIRECT_URI:https://packupapi.xyz/calendar/callback}

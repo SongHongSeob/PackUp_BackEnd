@@ -7,14 +7,18 @@ import java.util.Optional;
 
 public interface SnsSignUpRepo extends JpaRepository<SnsUser, Long> {
 
-    //boolean existsBysocialIdAndLoginType(String socialId, String loginType);
+    // SNS ID와 로그인 타입으로 중복 확인
     boolean existsBySocialIdAndLoginType(String socialId, String loginType);
 
-    Optional<SnsUser> findBySocialIdAndLoginType(String socialId, String name);
+    // SNS ID와 로그인 타입으로 조회
+    Optional<SnsUser> findBySocialIdAndLoginType(String socialId, String loginType);
 
+    // 사용자 번호로 SNS 연동 개수 확인
     int countByUserNo(int userNo);
 
-    boolean existsByUserNoAndLoginType(int userNo, String snsType);
+    // 사용자 번호와 로그인 타입으로 존재 여부 확인
+    boolean existsByUserNoAndLoginType(int userNo, String loginType);
 
-    Optional<Object> findByUserNoAndLoginType(int userNo, String snsType);
+    // 사용자 번호와 로그인 타입으로 조회
+    Optional<SnsUser> findByUserNoAndLoginType(int userNo, String loginType);
 }

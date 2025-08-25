@@ -54,6 +54,16 @@ public interface TemplateMapper {
 
     List<TempStepObjVo> getStepObjByStepNo(@Param("step") Integer step,@Param("templateNo") Integer templateNo);
 
-    List<TempStepTextVo> getStepTextByStepNo(@Param("step") Integer step,@Param("templateNo") Integer templateNo);   
+    List<TempStepTextVo> getStepTextByStepNo(@Param("step") Integer step,@Param("templateNo") Integer templateNo);
+
+    Integer getTotalCnt(TemplateVo tempVo);
+
+    Integer getTotalFavoriteCnt(TemplateVo tempVo);
+
+    Integer getTotalCateCnt(TemplateVo tempVo);
+
+    int templateStatusUpdate(TemplateVo tempVo);
+
+    int templateAlarmSave(TemplateVo tempVo);
 
 }

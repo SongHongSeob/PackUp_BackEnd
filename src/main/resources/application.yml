@@ -15,7 +15,7 @@ spring:
   
 
   datasource:
-    url: jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:log4jdbc:mysql://3.35.147.68:3306/SWYP6?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: swyp6
     password: Swyp10_6group
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
@@ -74,8 +74,20 @@ logging:
 
 mybatis:
   config-location: classpath:mybatis-config.xml
-  mapper-locations: classpath:mapper/**/*.xml
+  mapper-locations: 
+    - classpath:mapper/file/**/*.xml
+    - classpath:mapper/lgn/**/*.xml  
+    - classpath:mapper/notification/**/*.xml
+    - classpath:mapper/register/**/*.xml
+    - classpath:mapper/template/**/*.xml
+    # calendar 폴더는 삭제됨 - DB 없이 REST API로만 동작
 
 slack:
   client-id: slack_client_id
   client-secret: slack_client_secret
+
+google:
+  calendar:
+    client-id: ${GOOGLE_CALENDAR_CLIENT_ID:google_calendar_client_id}
+    client-secret: ${GOOGLE_CALENDAR_CLIENT_SECRET:google_calendar_client_secret}
+    redirect-uri: ${GOOGLE_CALENDAR_REDIRECT_URI:https://api.packup.swygbro.com/calendar/callback}

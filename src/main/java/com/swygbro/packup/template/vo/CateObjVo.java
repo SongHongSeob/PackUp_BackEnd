@@ -9,4 +9,5 @@ public class CateObjVo extends CommonVo{
     private int objNo;
     private int cateNo;
     private String objNm;
+    private String objEnm;
 }
